@@ -1,0 +1,7 @@
+{
+  "name": "Camellian.DistanceFade.Editor",
+  "rootNamespace": "Camellian.DistanceFade.Editor",
+  "references": ["Camellian.DistanceFade.Runtime", "nadena.dev.ndmf", "VRC.SDKBase", "VRC.SDK3A"],
+  "includePlatforms": ["Editor"],
+  "autoReferenced": true
+}

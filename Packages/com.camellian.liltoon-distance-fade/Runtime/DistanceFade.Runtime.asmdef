@@ -1,0 +1,6 @@
+{
+  "name": "Camellian.DistanceFade.Runtime",
+  "rootNamespace": "Camellian.DistanceFade",
+  "references": ["VRC.SDKBase"],
+  "autoReferenced": true
+}
