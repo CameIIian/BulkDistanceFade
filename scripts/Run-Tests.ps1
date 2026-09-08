@@ -2,10 +2,14 @@ param(
     [string]$UnityEditor = 'C:/Program Files/Unity/Hub/Editor/2022.3.22f1/Editor/Unity.exe'
 )
 $ErrorActionPreference = 'Stop'
+. (Join-Path $PSScriptRoot 'VerificationSafety.ps1')
 $workspace = Split-Path -Parent $PSScriptRoot
 $project = Join-Path $workspace '.verification~/Unity'
 $log = Join-Path $workspace '.verification~/editmode.log'
 $results = Join-Path $workspace '.verification~/editmode-results.xml'
+foreach ($path in @($project, $log, $results, (Join-Path $project 'Packages/manifest.json'))) {
+    Assert-VerificationPath $path $workspace
+}
 if (-not (Test-Path -LiteralPath (Join-Path $project 'Packages/manifest.json'))) {
     throw 'Run Prepare-Verification.ps1 first.'
 }

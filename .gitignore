@@ -8,3 +8,28 @@
 .vs/
 *.csproj
 *.sln
+
+# Local editor/agent settings and operating system files
+.vscode/
+.idea/
+.codex/
+.agents/
+.DS_Store
+Thumbs.db
+~$*
+
+# Credentials and local environment settings; examples must contain dummy values.
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.pfx
+*.p12
+*.keystore
+*.jks
+
+# Build outputs (publish only deliberately prepared release artifacts)
+**/[Bb]uild/
+**/[Bb]uilds/
+*.unitypackage
