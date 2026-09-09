@@ -84,6 +84,40 @@ Inspectorの目視・ドラッグ操作、実MA／TTT／AAO構成、実アップ
 
 既存の全項目適用テストは裏面・モードを明示ONにするよう変更し、部分上書きテストは試験用の開始距離を明示した。新規コンポーネントがMaterialの裏面・Modeを保持する回帰テストを1件追加した。`./scripts/Run-Tests.ps1`によるUnity 2022.3.22f1のコンパイルとEdit Modeテストは **49件合格／失敗0件／スキップ0件**。結果は`.verification~/editmode-results.xml`、ログは`.verification~/editmode.log`。Inspectorの目視操作は未実施。
 
+## 初期色のRGB変換と保存済み設定の修正操作（2026-09-09）
+
+利用者の意図するフェード色は0～255表記のRGB `(10, 7, 7)`、Alpha 1（`#0A0707`）であることを確認した。`Color(10, 7, 7, 1)`は0～1へ正規化されず、RGBが1を超えるHDR値となっていた。リム色の`Color(255, 188, 177, 0)`にも同じ問題があった。
+
+初期色を`Color32`から`Color`への変換で定義した。フェード色は`Color32(10, 7, 7, 255)`、リム色は`Color32(255, 188, 177, 0)`とし、Alpha 1／0を維持する。Color32はAlphaを含め各成分が0～255である。[Unity Color32仕様](https://docs.unity3d.com/2022.3/Documentation/ScriptReference/Color32.html)
+
+既存Scene／Prefabの保存値は自動変換せず、各色の右に「初期色」ボタンを追加した。その色の適用ON時に使用でき、選択した色だけを初期化する。SerializedProperty経由でUndo／RedoとPrefab overrideの仕組みを利用する。既存のHDR入力・非破壊Material適用・ユーザー調整済みの距離や強度、リムの指数4.5は保持する。
+
+HDRピッカーのIntensityは色の値から算出される表示で、本ツールの強度とは別である。色のウィンドウを開き直した際にRGB表示とIntensityの内訳が再計算され得るため、Intensity表示そのものを独立した保存値とは扱わない。[Unity HDRカラーピッカー](https://docs.unity3d.com/2022.3/Documentation/Manual/HDRColorPicker.html)
+
+`./scripts/Run-Tests.ps1`でコンパイルとEdit Modeテスト **52件合格／失敗0件／スキップ0件**。追加3ケースでは、初期色の正規化・Alpha・複製Materialへの適用と元Materialの不変性、フェード色／リム色それぞれの初期化・他項目保持・Undo／Redoを確認した。既存の任意HDR値を適用するテストも合格した。結果XMLは`.verification~/editmode-results.xml`、ログは`.verification~/editmode.log`。カラーピッカー表示・実アバターの描画は未目視確認。
+
+## Inspectorの操作順・折りたたみ・項目チェックの整理（2026-09-09）
+
+画面を「1. 処理の有効化」「2. 距離フェードの基本設定」「オプション」「3. 集計・確認」の順へ変更した。基本項目は開始距離・終了距離・色・強度とし、リム設定、除外マテリアル、高度な設定（裏面・モード・Strict）を、それぞれ初期状態で閉じたFoldoutに格納した。エラー・警告・集計・更新ボタンはFoldoutの外に表示する。
+
+開閉状態はInspectorインスタンスのboolだけに保持し、アバター設定をシリアライズしない。開閉で値や適用状態を変更しない。リムの見出しには適用項目数、除外の見出しには空欄・重複を含む配列の登録枠数を表示する。
+
+各項目の適用チェックは、文字ラベルを削除して幅18のチェックボックスへ変更した。項目名とOFF時の既存値保持はツールチップで説明する。SerializedPropertyによる編集・Undo／Redo・初期色ボタンの経路は維持した。
+
+最終状態で`./scripts/Run-Tests.ps1`を実行し、Unityのコンパイル成功、Edit Modeテスト **52件合格／失敗0件／スキップ0件** を確認した。Foldoutの開始・終了の対応、旧チェックラベルの削除、README・Pages原稿の説明とMarkdown変換も確認した。Unity Inspectorの目視操作・幅別レイアウト確認は未実施。
+
+## リムの常時表示と除外配列GUIの修正（2026-09-09）
+
+「2. 基本設定」内に距離フェード4項目とリム2項目を常時表示し、リムのFoldoutを除去した。オプションは除外マテリアルと高度な設定だけとした。
+
+除外Material配列の標準PropertyFieldが内部でFoldoutHeaderGroupを使用するため、外側のFoldoutHeaderGroupと入れ子になって描画エラーが発生していた。外側の折りたたみは通常の`EditorGUILayout.Foldout`へ変更し、ヘッダーグループを作らない構造にした。
+
+集計は確認用の読み取り専用走査であり、ボタン未実行でもNDMF適用は最新設定を取り込んで再走査することを、InspectorとREADME／Pages原稿へ明記した。
+
+UnityのEditorWindowに実際のカスタムInspectorを描画する回帰テストを追加した。除外と高度な設定を開き、2要素の除外配列も展開した状態でRepaintが発生し、予期しないログがなく、設定が書き換わらないことを確認する。別のテストでは、集計後に除外設定を変更し、再集計なしでも最新の除外設定で適用されることを確認した。
+
+最初の実行は既存の`-nographics`指定により描画デバイスがなく、描画テストだけ失敗した。このテストに必要なグラフィックスを有効にするため、`scripts/Run-Tests.ps1`から`-nographics`を除去し、`-batchmode`は維持した。再実行でコンパイル成功、**54件合格／失敗0件／スキップ0件**。結果XMLは`.verification~/editmode-results.xml`、ログは`.verification~/editmode.log`。画面描画の実行とエラーの不在を確認したもので、幅ごとの見た目や全操作の目視確認とは区別する。
+
 ## 残る手動検証・リリース条件
 
 - MAでの衣装追加、TTTでのMaterial差し替え、AAO最適化を含む実アバターでの最終出力確認。

@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Camellian.DistanceFade.Editor;
@@ -6,11 +7,24 @@ using nadena.dev.ndmf;
 using NUnit.Framework;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.TestTools;
 using VRC.SDK3.Avatars.Components;
 using Object = UnityEngine.Object;
 
 namespace Camellian.DistanceFade.Tests
 {
+    internal sealed class DistanceFadeInspectorTestWindow : EditorWindow
+    {
+        internal UnityEditor.Editor Inspector;
+        internal int Repaints;
+        private void OnGUI()
+        {
+            if (Inspector == null) return;
+            Inspector.OnInspectorGUI();
+            if (Event.current.type == EventType.Repaint) Repaints++;
+        }
+    }
+
     public sealed class DistanceFadeTests
     {
         private readonly List<Object> owned = new List<Object>();
@@ -84,6 +98,104 @@ namespace Camellian.DistanceFade.Tests
             Assert.That(EditorJsonUtility.ToJson(material), Is.EqualTo(before));
             Assert.That(root.GetComponent<DistanceFadeBulkSetter>(), Is.Null);
             Assert.That(result.Clones, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void ApplyUsesLatestSettingsWithoutInspectorCollection()
+        {
+            var renderer = Renderer(material);
+            setting.strength = 0.25f;
+            var oldSummary = ApplyDistanceFadePass.Collect(root, SettingsValidator.Capture(setting)).Summary;
+            Assert.That(oldSummary.TargetMaterials, Is.EqualTo(1));
+            // Change the live settings without refreshing the Inspector summary.
+            setting.excludedMaterials = new[] { material };
+            var result = Apply();
+            Assert.That(result.TargetMaterials, Is.Zero);
+            Assert.That(result.ExcludedSlots, Is.EqualTo(1));
+            Assert.That(renderer.sharedMaterial, Is.SameAs(material));
+        }
+
+        [UnityTest]
+        public IEnumerator ExpandedExclusionInspectorDrawsWithoutErrorsOrChangingSettings()
+        {
+            setting.excludedMaterials = new[] { material, null };
+            var before = EditorJsonUtility.ToJson(setting);
+            var inspector = Own(UnityEditor.Editor.CreateEditor(setting));
+            var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+            typeof(DistanceFadeBulkSetterEditor).GetField("showExclusions", flags).SetValue(inspector, true);
+            typeof(DistanceFadeBulkSetterEditor).GetField("showAdvanced", flags).SetValue(inspector, true);
+            inspector.serializedObject.FindProperty("excludedMaterials").isExpanded = true;
+            var window = ScriptableObject.CreateInstance<DistanceFadeInspectorTestWindow>();
+            try
+            {
+                window.Inspector = inspector;
+                window.position = new Rect(0, 0, 520, 950);
+                window.ShowUtility();
+                for (var frame = 0; frame < 30 && window.Repaints < 2; frame++)
+                {
+                    window.Repaint();
+                    yield return null;
+                }
+                Assert.That(window.Repaints, Is.GreaterThan(0), "The actual Inspector GUI must render.");
+                LogAssert.NoUnexpectedReceived();
+                Assert.That(EditorJsonUtility.ToJson(setting), Is.EqualTo(before));
+            }
+            finally { window.Close(); }
+        }
+
+        [Test]
+        public void DefaultColorsUseByteRgbWithoutHdrAmplificationAndApplyToMaterial()
+        {
+            var fade = new Color(10f / 255f, 7f / 255f, 7f / 255f, 1);
+            var rim = new Color(1, 188f / 255f, 177f / 255f, 0);
+            AssertColor(setting.fadeColor, fade);
+            AssertColor(setting.rimColor, rim);
+            Assert.That(setting.fadeColor.maxColorComponent, Is.LessThanOrEqualTo(1));
+            Assert.That(setting.rimColor.maxColorComponent, Is.LessThanOrEqualTo(1));
+            var before = EditorJsonUtility.ToJson(material);
+            var r = Renderer(material);
+            Apply();
+            AssertColor(r.sharedMaterial.GetColor(MaterialUtility.Color), fade);
+            AssertColor(r.sharedMaterial.GetColor(MaterialUtility.RimColor), rim);
+            Assert.That(EditorJsonUtility.ToJson(material), Is.EqualTo(before));
+        }
+
+        [TestCase("fadeColor")]
+        [TestCase("rimColor")]
+        public void ResetColorOnlyUpdatesSelectedColorAndSupportsUndoRedo(string propertyName)
+        {
+            var oldFade = new Color(10, 7, 7, 1);
+            var oldRim = new Color(255, 188, 177, 0);
+            setting.fadeColor = oldFade;
+            setting.rimColor = oldRim;
+            setting.startDistance = 0.42f;
+            setting.strength = 0.63f;
+            setting.overrideFadeColor = false;
+            var snapshot = SettingsValidator.Capture(setting);
+            AssertColor(snapshot.Color, oldFade);
+            AssertColor(snapshot.RimColor, oldRim);
+
+            Undo.IncrementCurrentGroup();
+            var serialized = new SerializedObject(setting);
+            DistanceFadeBulkSetterEditor.ResetColorToDefault(serialized.FindProperty(propertyName));
+            AssertColor(setting.fadeColor, oldFade);
+            AssertColor(setting.rimColor, oldRim);
+            serialized.ApplyModifiedProperties();
+            Undo.FlushUndoRecordObjects();
+            var expectedFade = propertyName == "fadeColor" ? new Color(10f / 255f, 7f / 255f, 7f / 255f, 1) : oldFade;
+            var expectedRim = propertyName == "rimColor" ? new Color(1, 188f / 255f, 177f / 255f, 0) : oldRim;
+            AssertColor(setting.fadeColor, expectedFade);
+            AssertColor(setting.rimColor, expectedRim);
+            Assert.That(setting.startDistance, Is.EqualTo(0.42f));
+            Assert.That(setting.strength, Is.EqualTo(0.63f));
+            Assert.That(setting.overrideFadeColor, Is.False);
+            Undo.PerformUndo();
+            AssertColor(setting.fadeColor, oldFade);
+            AssertColor(setting.rimColor, oldRim);
+            Undo.PerformRedo();
+            AssertColor(setting.fadeColor, expectedFade);
+            AssertColor(setting.rimColor, expectedRim);
+            Undo.ClearUndo(setting);
         }
 
         [Test]

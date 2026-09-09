@@ -11,6 +11,9 @@ namespace Camellian.DistanceFade.Editor
         private bool stale = true;
         private bool refreshed;
         private bool enabledLast;
+        // View state belongs to this Inspector, never to the avatar's serialized settings.
+        private bool showExclusions;
+        private bool showAdvanced;
 
         private void OnEnable()
         {
@@ -33,27 +36,28 @@ namespace Camellian.DistanceFade.Editor
             if (enabledLast != setting.enabled) { enabledLast = setting.enabled; Invalidate(); }
             serializedObject.Update();
             EditorGUILayout.LabelField("BulkDistanceFade", EditorStyles.boldLabel);
+            EditorGUILayout.Space();
+            EditorGUILayout.LabelField("1. 処理の有効化", EditorStyles.boldLabel);
             EditorGUILayout.PropertyField(serializedObject.FindProperty("m_Enabled"), new GUIContent("処理を有効化"));
             EditorGUILayout.LabelField("配置先", setting.gameObject.name);
             EditorGUILayout.LabelField("対象範囲", "アバター全体（非アクティブを含む）");
-            EditorGUILayout.PropertyField(serializedObject.FindProperty("strictLilToonCheck"), new GUIContent("Strict lilToon Check"));
-            EditorGUILayout.PropertyField(serializedObject.FindProperty("excludedMaterials"), new GUIContent("除外マテリアル"), true);
-            EditorGUILayout.HelpBox("指定したMaterialを使うすべてのスロットを除外します。未設定・重複要素は無視します。" +
-                "他ツールによる置換後の除外は、NDMFに置換元が登録されている場合に引き継がれます。", MessageType.Info);
             EditorGUILayout.Space();
+            EditorGUILayout.LabelField("2. 基本設定", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("変更する項目だけ左端のチェックをONにしてください。", EditorStyles.wordWrappedMiniLabel);
             EditorGUILayout.LabelField("距離フェード", EditorStyles.boldLabel);
-            Field("overrideFadeColor", "fadeColor", "色");
             Field("overrideStartDistance", "startDistance", "開始距離");
             Field("overrideEndDistance", "endDistance", "終了距離");
+            Field("overrideFadeColor", "fadeColor", "色");
             Field("overrideStrength", "strength", "強度");
-            Field("overrideBackfaceShadow", "backfaceShadow", "裏面を陰にする");
-            Field("overrideMode", "mode", "モード");
             EditorGUILayout.Space();
             EditorGUILayout.LabelField("リム", EditorStyles.boldLabel);
             Field("overrideRimColor", "rimColor", "色");
             Field("overrideRimFresnelPower", "rimFresnelPower", "リムライトの細さ");
+            DrawOptions();
             if (serializedObject.ApplyModifiedProperties()) Invalidate();
 
+            EditorGUILayout.Space();
+            EditorGUILayout.LabelField("3. 集計・確認", EditorStyles.boldLabel);
             if (!refreshed) RefreshSummary();
             ValidateOnly();
             if (error != null) EditorGUILayout.HelpBox(error, MessageType.Error);
@@ -69,7 +73,40 @@ namespace Camellian.DistanceFade.Editor
             }
             if (stale) EditorGUILayout.HelpBox("設定または構成が変更されました。集計を更新してください。", MessageType.Info);
             if (GUILayout.Button("集計を更新")) RefreshSummary();
-            EditorGUILayout.HelpBox("集計は読み取り専用です。MA・TTT処理後の対象数とは異なる場合があります。", MessageType.Info);
+            EditorGUILayout.HelpBox("集計は対象件数の確認用です。更新しなくても、NDMFビルド時に最新の設定で処理されます。" +
+                "MA・TTT処理後の対象数とは異なる場合があります。", MessageType.Info);
+        }
+
+        private void DrawOptions()
+        {
+            EditorGUILayout.Space();
+            EditorGUILayout.LabelField("オプション", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("見出しをクリックして開閉します。閉じても設定は適用されます。", EditorStyles.wordWrappedMiniLabel);
+
+            var exclusions = serializedObject.FindProperty("excludedMaterials");
+            // Array PropertyField draws its own foldout header. Keep outer foldouts ungrouped.
+            showExclusions = EditorGUILayout.Foldout(showExclusions, $"除外マテリアル（登録枠 {exclusions.arraySize}）", true, EditorStyles.foldoutHeader);
+            if (showExclusions)
+            {
+                using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
+                {
+                    EditorGUILayout.PropertyField(exclusions, new GUIContent("除外リスト"), true);
+                    EditorGUILayout.HelpBox("指定したMaterialを使うすべてのスロットを除外します。未設定・重複要素は無視します。" +
+                        "他ツールによる置換後の除外は、NDMFに置換元が登録されている場合に引き継がれます。", MessageType.Info);
+                }
+            }
+            showAdvanced = EditorGUILayout.Foldout(showAdvanced, "高度な設定", true, EditorStyles.foldoutHeader);
+            if (showAdvanced)
+            {
+                using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
+                {
+                    Field("overrideBackfaceShadow", "backfaceShadow", "裏面を陰にする");
+                    Field("overrideMode", "mode", "モード");
+                    EditorGUILayout.Space();
+                    EditorGUILayout.PropertyField(serializedObject.FindProperty("strictLilToonCheck"), new GUIContent("Strict lilToon Check"));
+                    EditorGUILayout.LabelField("StrictをOFFにすると、名前の規則に一致するカスタムShaderも候補に含めます。", EditorStyles.wordWrappedMiniLabel);
+                }
+            }
         }
 
         private void Field(string toggle, string value, string label)
@@ -78,9 +115,10 @@ namespace Camellian.DistanceFade.Editor
             var property = serializedObject.FindProperty(value);
             using (new EditorGUILayout.HorizontalScope())
             {
-                var toggleRect = EditorGUILayout.GetControlRect(GUILayout.Width(62));
-                EditorGUI.BeginProperty(toggleRect, GUIContent.none, apply);
-                apply.boolValue = EditorGUI.ToggleLeft(toggleRect, "適用", apply.boolValue);
+                var toggleRect = EditorGUILayout.GetControlRect(GUILayout.Width(18));
+                var toggleLabel = new GUIContent(string.Empty, label + "を適用します。OFFの場合はマテリアルの既存値を保持します。");
+                EditorGUI.BeginProperty(toggleRect, toggleLabel, apply);
+                apply.boolValue = EditorGUI.ToggleLeft(toggleRect, toggleLabel, apply.boolValue);
                 EditorGUI.EndProperty();
                 using (new EditorGUI.DisabledScope(!apply.boolValue))
                 {
@@ -89,7 +127,20 @@ namespace Camellian.DistanceFade.Editor
                     else EditorGUILayout.PropertyField(property, new GUIContent(label));
                     if (EditorGUI.EndChangeCheck() && value == "rimFresnelPower" && SettingsValidator.Finite(property.floatValue))
                         property.floatValue = Mathf.Clamp(property.floatValue, 0.01f, 50);
+                    if ((value == "fadeColor" || value == "rimColor") &&
+                        GUILayout.Button(new GUIContent("初期色", "この色だけを初期値に戻します。他の設定は変更しません。"), GUILayout.Width(54)))
+                        ResetColorToDefault(property);
                 }
+            }
+        }
+
+        internal static void ResetColorToDefault(SerializedProperty property)
+        {
+            switch (property.name)
+            {
+                case "fadeColor": property.colorValue = DistanceFadeBulkSetter.DefaultFadeColor; break;
+                case "rimColor": property.colorValue = DistanceFadeBulkSetter.DefaultRimColor; break;
+                default: throw new System.ArgumentException("Expected a distance fade color property.", nameof(property));
             }
         }
 

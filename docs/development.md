@@ -43,7 +43,7 @@ UnityのTest RunnerでEdit Modeを選び、`Camellian.DistanceFade.Tests.Editor`
 ./scripts/Run-Tests.ps1 -UnityEditor 'C:/path/to/Editor/Unity.exe'
 ```
 
-Unity Editorを実行できるライセンス環境が必要です。結果XMLは `.verification~/editmode-results.xml`、Unityログは `.verification~/editmode.log` に出力します。結果が古い、0件、失敗、またはUnityが異常終了した場合、実行スクリプトはエラーを返します。
+Unity Editorを実行できるライセンス環境が必要です。Inspector描画の回帰テストがあるため、グラフィックスが利用できる環境で実行し、`-nographics`は指定しません。結果XMLは `.verification~/editmode-results.xml`、Unityログは `.verification~/editmode.log` に出力します。結果が古い、0件、失敗、またはUnityが異常終了した場合、実行スクリプトはエラーを返します。
 
 検証スクリプト自体の安全性に関する回帰テストは次で実行できます。
 
@@ -53,7 +53,7 @@ Unity Editorを実行できるライセンス環境が必要です。結果XML�
 
 ### 確認済みのテストと資料
 
-2026-09-09のUnity 2022.3.22f1による実行で、**Edit Modeテスト49件合格・失敗0件・スキップ0件**を確認しています。非破壊適用、共有Material、部分上書き、配置・入力検証、除外とNDMF置換追跡、Prefab保存・互換性、Undo／Redo、裏面とモードの初期適用OFFによる既存値保持を含みます。これは実アップロードや全対応環境の見た目を検証した結果ではありません。
+2026-09-09のUnity 2022.3.22f1による実行で、**Edit Modeテスト54件合格・失敗0件・スキップ0件**を確認しています。非破壊適用、共有Material、部分上書き、配置・入力検証、除外とNDMF置換追跡、Prefab保存・互換性、Undo／Redo、裏面とモードの初期適用OFFによる既存値保持、初期色のRGB正規化と色単位の初期化・Undo／Redo、除外リストを展開したInspectorの描画、集計未更新時の最新設定適用を含みます。これは実アップロードや全対応環境の見た目を検証した結果ではありません。
 
 リポジトリ全体に含まれる関連資料：
 
@@ -77,4 +77,3 @@ Unity Editorを実行できるライセンス環境が必要です。結果XML�
 保存済み設定との互換性を保つには、既存フィールド名を変更する際に `FormerlySerializedAs` 等の移行対応が必要です。設定を変更した場合は、該当する回帰テストを実行してください。
 
 ドキュメントの公開手順は[GitHub Pagesの公開・更新](publishing.html)を参照してください。
-

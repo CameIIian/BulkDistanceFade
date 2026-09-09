@@ -14,7 +14,8 @@ if (-not (Test-Path -LiteralPath (Join-Path $project 'Packages/manifest.json')))
     throw 'Run Prepare-Verification.ps1 first.'
 }
 $started = [DateTime]::UtcNow
-$arguments = @('-batchmode', '-nographics', '-projectPath', ('"' + $project + '"'),
+# Inspector regression tests need a graphics device even in batch mode.
+$arguments = @('-batchmode', '-projectPath', ('"' + $project + '"'),
     '-runTests', '-testPlatform', 'EditMode', '-assemblyNames', 'Camellian.DistanceFade.Tests.Editor',
     '-testResults', ('"' + $results + '"'), '-logFile', ('"' + $log + '"'))
 $process = Start-Process -FilePath $UnityEditor -ArgumentList $arguments -WindowStyle Hidden -PassThru -Wait
