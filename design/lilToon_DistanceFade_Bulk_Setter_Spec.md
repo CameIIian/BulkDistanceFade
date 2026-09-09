@@ -7,6 +7,8 @@
 
 本書は原資料を実装・検証に使用できる仕様へ整理したものである。追加要件として、**設定コンポーネントはアバタールートに取り付けることを必須とする**。本書中の「初版の設計判断」は原資料の曖昧な点を具体化した決定であり、「実装時確認事項」は対応バージョンの実機検証を経て確定する項目である。本書の作成時点でUnity上の実装・動作検証は行っていない。
 
+2026-09-09追記: Material除外リストは[マテリアル除外機能 設計書](Material_Exclusion_Spec.md)で追加仕様として定義し、実装した。除外に関する記述は追加仕様を優先する。
+
 ## 1. 目的と成果物
 
 アバターの身体・衣装・髪などに使用されるlilToonマテリアルへ、共通の距離フェード設定をビルド時に自動適用する。利用者はアバタールートへ設定コンポーネントを1個追加し、Inspectorで値と適用項目を指定する。
@@ -55,7 +57,7 @@ NDMFのルート取得と一時アセット判定には、採用バージョン�
 - AnimationClipのMaterialプロパティアニメーション、およびMaterial差し替えキーフレームの書き換え。
 - MaterialPropertyBlock、Texture、Mesh、Shader、描画モード、Shaderキーワードの変更。
 - 元Materialへの保存・上書き、Prefab Apply、生成Textureの恒久保存。
-- Material除外リスト、階層別設定、手動Material指定、実行時の設定変更UI。
+- 階層別設定、処理対象の手動Material指定、実行時の設定変更UI。Material除外リストは追加仕様で対応する。
 
 アニメーションが同じプロパティを駆動する場合は再生中に値が上書きされ得る。また、AnimationClipだけから参照される差し替え先Materialは走査対象に含まれない。初版が保証するのは、適用パスで対象となったMaterialの静的初期値である。
 
@@ -63,7 +65,7 @@ NDMFのルート取得と一時アセット判定には、採用バージョン�
 
 ### 3.1 必須配置
 
-設定コンポーネント名は`DistanceFadeBulkSetter`、Inspector上の表示名は「lilToon Distance Fade Bulk Setter」とする。
+設定コンポーネント名は`DistanceFadeBulkSetter`、Inspector内の見出しは「BulkDistanceFade」とする。Add Componentのメニューは`BulkDistanceFade/Distance Fade Bulk Setter`とし、公式機能と誤認されない独立した分類を使用する（2026-09-09改訂）。
 
 **`VRC Avatar Descriptor`と同じGameObject、すなわちアバタールートにのみ取り付ける。** 衣装、Armature、身体メッシュ、設定用の空GameObjectなど、子オブジェクトへの取り付けは許可しない。親にアバタールートが見つかっても、その子に付いた設定を採用しない。
 
@@ -105,7 +107,9 @@ AvatarRoot                      ← VRC Avatar Descriptor
 
 ### 4.1 設定項目
 
-すべての適用Toggleの初期値はONとする。初期値は原資料の設定表を優先し、レイアウト例にある強度`1.00`は採用しない。
+2026-09-09改訂: 「裏面を陰にする」と「モード」の適用Toggleの初期値はOFF、その他はONとする。裏面の値はチェックボックス、モードは「頂点」(0)／「座標」(1、オブジェクト位置)のプルダウンとする。既存の未知Mode値は「未対応値 (数値)」として選び直すまで保持する。保存済みコンポーネントの適用Toggleは自動変更しない。
+
+以下の値の表は初版の基準値を記録したもの。現在の初期値は`Runtime/DistanceFadeBulkSetter.cs`を正とし、利用者が調整した色・距離・強度を今回のUI変更で戻さない。
 
 | 保存フィールド案 | Shader Property／要素 | 型 | 初期値 | Inspector表示 |
 | --- | --- | --- | --- | --- |
@@ -151,7 +155,7 @@ Backface Shadowは適用ONのときだけ`false=0`、`true=1`として書く。O
 ### 5.1 レイアウト
 
 ```text
-lilToon Distance Fade Bulk Setter [コンポーネント有効チェック]
+BulkDistanceFade [コンポーネント有効チェック]
 配置先: AvatarRoot
 対象範囲: アバター全体（非アクティブを含む）
 Strict lilToon Check [ON]
@@ -161,8 +165,8 @@ Strict lilToon Check [ON]
   [適用] 開始距離           [0.10]
   [適用] 終了距離           [0.01]
   [適用] 強度               [0.00]
-  [適用] 裏面を影にする     [OFF]
-  [適用] モード             [Mode 0]
+  [適用OFF] 裏面を陰にする  [チェックボックス: OFF]
+  [適用OFF] モード          [頂点 ▼ / 座標]
 リム
   [適用] リム色             [HDR Color / Alpha]
   [適用] フレネル指数       [5.00]
@@ -186,7 +190,7 @@ Strict lilToon Check [ON]
 
 1. 必須パッケージと本ツールを導入する。
 2. Hierarchyで`VRC Avatar Descriptor`のあるアバタールートを選択する。
-3. 「lilToon Distance Fade Bulk Setter」を1個追加する。
+3. Add Componentから`BulkDistanceFade/Distance Fade Bulk Setter`を1個追加する。
 4. 適用項目、距離、強度、色等を指定する。強度の初期値は`0`であることを確認する。
 5. Inspectorの配置・入力エラーを解消する。
 6. NDMFが処理するPlay Modeまたはビルドで結果を確認する。

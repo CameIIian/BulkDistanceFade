@@ -10,6 +10,7 @@ namespace Camellian.DistanceFade.Tests
     {
         internal static GameObject Target;
         internal static Material Replacement;
+        internal static bool RegisterOrigin;
         public override string QualifiedName => "com.camellian.distance-fade.tests.late-replacement";
         protected override void Configure()
         {
@@ -17,6 +18,8 @@ namespace Camellian.DistanceFade.Tests
                 .Run("Test late material replacement", ctx =>
                 {
                     if (Target == null || ctx.AvatarRootObject != Target) return;
+                    if (RegisterOrigin)
+                        ObjectRegistry.RegisterReplacedObject(Target.GetComponentInChildren<MeshRenderer>(true).sharedMaterial, Replacement);
                     foreach (var r in Target.GetComponentsInChildren<MeshRenderer>(true)) r.sharedMaterial = Replacement;
                 });
         }

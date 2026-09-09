@@ -9,7 +9,7 @@ namespace Camellian.DistanceFade.Editor
     public sealed class DistanceFadePlugin : Plugin<DistanceFadePlugin>
     {
         public override string QualifiedName => "com.camellian.liltoon-distance-fade";
-        public override string DisplayName => "lilToon Distance Fade Bulk Setter";
+        public override string DisplayName => "BulkDistanceFade";
         private sealed class State { public State() { } public bool Invalid; }
 
         protected override void Configure()

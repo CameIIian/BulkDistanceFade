@@ -1,0 +1,12 @@
+title: BulkDistanceFade
+description: VRChatアバターのlilToon距離フェードを非破壊で一括設定するUnity Editor拡張
+lang: ja
+timezone: Asia/Tokyo
+theme: jekyll-theme-cayman
+markdown: kramdown
+show_downloads: false
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - vendor
+  - .bundle

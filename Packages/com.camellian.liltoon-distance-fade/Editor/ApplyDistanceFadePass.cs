@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using nadena.dev.ndmf;
 using UnityEngine;
 
 namespace Camellian.DistanceFade.Editor
@@ -18,6 +19,23 @@ namespace Camellian.DistanceFade.Editor
         {
             var plan = new Plan();
             var inspected = new Dictionary<Material, string>();
+            var excluded = new HashSet<Material>();
+            var registry = ObjectRegistry.ActiveRegistry;
+            var excludedOrigins = new HashSet<ObjectReference>();
+            foreach (var material in settings.ExcludedMaterials)
+            {
+                if (material == null) continue;
+                // Read existing mappings only: Inspector collection must not register objects.
+                var origin = registry?.GetReference(material, false);
+                if (origin != null) excludedOrigins.Add(origin);
+            }
+            bool IsExcluded(Material material)
+            {
+                if (settings.ExcludedMaterials.Contains(material)) return true;
+                if (excludedOrigins.Count == 0) return false;
+                var origin = registry?.GetReference(material, false);
+                return origin != null && excludedOrigins.Contains(origin);
+            }
             foreach (var renderer in root.GetComponentsInChildren<Renderer>(true))
             {
                 if (!(renderer is MeshRenderer) && !(renderer is SkinnedMeshRenderer)) continue;
@@ -29,6 +47,12 @@ namespace Camellian.DistanceFade.Editor
                     string reason;
                     if (settings.Mask == Overrides.None) reason = "全項目OFF";
                     else if (material == null) reason = "null Material";
+                    else if (excluded.Contains(material) || IsExcluded(material))
+                    {
+                        reason = "手動除外";
+                        excluded.Add(material);
+                        plan.Summary.ExcludedSlots++;
+                    }
                     else if (material.shader == null) reason = "null Shader";
                     else if (!inspected.TryGetValue(material, out reason))
                     {
@@ -50,6 +74,7 @@ namespace Camellian.DistanceFade.Editor
                 plan.Renderers.Add((renderer, materials));
             }
             plan.Summary.TargetMaterials = plan.Materials.Count;
+            plan.Summary.ExcludedMaterials = excluded.Count;
             return plan;
         }
 
