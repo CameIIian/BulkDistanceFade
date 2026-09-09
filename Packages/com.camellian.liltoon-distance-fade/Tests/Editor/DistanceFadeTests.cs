@@ -100,6 +100,80 @@ namespace Camellian.DistanceFade.Tests
             Assert.That(result.Clones, Is.EqualTo(1));
         }
 
+        [TestCase(0)]
+        [TestCase(1)]
+        [TestCase(2)]
+        public void BuiltInPresetReplacesAllSixValuesUsedByNdmf(int index)
+        {
+            var preset = DistanceFadePresets.BuiltIn[index];
+            Assert.That(preset.Name, Is.Not.Empty);
+            setting.startDistance = 0.91f;
+            setting.endDistance = 0.82f;
+            setting.fadeColor = Color.green;
+            setting.strength = 0.13f;
+            setting.rimColor = Color.blue;
+            setting.rimFresnelPower = 19;
+            var serialized = new SerializedObject(setting);
+            DistanceFadePresets.Apply(serialized, preset);
+            serialized.ApplyModifiedProperties();
+            var originalRenderer = Renderer(material);
+            var originalMaterial = EditorJsonUtility.ToJson(material);
+            var clone = Own(Object.Instantiate(root));
+            using (new OverrideTemporaryDirectoryScope(null)) AvatarProcessor.ProcessAvatar(clone);
+            var output = clone.GetComponentInChildren<MeshRenderer>().sharedMaterial;
+            if (output != material) Own(output);
+            Assert.That(output, Is.Not.SameAs(material));
+            Assert.That(output.GetVector(MaterialUtility.Vector), Is.EqualTo(new Vector4(preset.StartDistance, preset.EndDistance, preset.Strength, material.GetVector(MaterialUtility.Vector).w)));
+            AssertColor(output.GetColor(MaterialUtility.Color), preset.FadeColor);
+            AssertColor(output.GetColor(MaterialUtility.RimColor), preset.RimColor);
+            Assert.That(output.GetFloat(MaterialUtility.Fresnel), Is.EqualTo(preset.RimFresnelPower));
+            Assert.That(originalRenderer.sharedMaterial, Is.SameAs(material));
+            Assert.That(EditorJsonUtility.ToJson(material), Is.EqualTo(originalMaterial));
+        }
+
+        [Test]
+        public void PresetUpdatesValuesButKeepsChecksAndOptions()
+        {
+            AllOff();
+            setting.enabled = false;
+            setting.strictLilToonCheck = false;
+            setting.mode = 17;
+            setting.backfaceShadow = true;
+            setting.excludedMaterials = new[] { material };
+            var preset = new DistanceFadePreset("Test", 0.8f, 0.3f, new Color(3, 2, 1, 0.4f),
+                0.73f, new Color(4, 5, 6, 0.6f), 8);
+            var serialized = new SerializedObject(setting);
+            DistanceFadePresets.Apply(serialized, preset);
+            serialized.ApplyModifiedProperties();
+            Assert.That(setting.startDistance, Is.EqualTo(0.8f));
+            Assert.That(setting.endDistance, Is.EqualTo(0.3f));
+            AssertColor(setting.fadeColor, new Color(3, 2, 1, 0.4f));
+            Assert.That(setting.strength, Is.EqualTo(0.73f));
+            AssertColor(setting.rimColor, new Color(4, 5, 6, 0.6f));
+            Assert.That(setting.rimFresnelPower, Is.EqualTo(8));
+            Assert.That(SettingsValidator.Capture(setting).Mask, Is.EqualTo(Overrides.None));
+            Assert.That(setting.enabled, Is.False);
+            Assert.That(setting.strictLilToonCheck, Is.False);
+            Assert.That(setting.mode, Is.EqualTo(17));
+            Assert.That(setting.backfaceShadow, Is.True);
+            Assert.That(setting.excludedMaterials, Is.EqualTo(new[] { material }));
+        }
+
+        [TestCase("name")]
+        [TestCase("color")]
+        [TestCase("fresnel")]
+        public void InvalidPresetDoesNotPartiallyOverwriteSettings(string invalid)
+        {
+            var before = EditorJsonUtility.ToJson(setting);
+            var preset = new DistanceFadePreset(invalid == "name" ? "" : "Test", 0.8f, 0.3f,
+                invalid == "color" ? new Color(1, 1, 1, float.NaN) : Color.red,
+                0.73f, Color.blue, invalid == "fresnel" ? 100 : 8);
+            var serialized = new SerializedObject(setting);
+            Assert.Throws<ArgumentException>(() => DistanceFadePresets.Apply(serialized, preset));
+            serialized.ApplyModifiedProperties();
+            Assert.That(EditorJsonUtility.ToJson(setting), Is.EqualTo(before));
+        }
+
         [Test]
         public void ApplyUsesLatestSettingsWithoutInspectorCollection()
         {
@@ -122,7 +196,6 @@ namespace Camellian.DistanceFade.Tests
             var before = EditorJsonUtility.ToJson(setting);
             var inspector = Own(UnityEditor.Editor.CreateEditor(setting));
             var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-            typeof(DistanceFadeBulkSetterEditor).GetField("showExclusions", flags).SetValue(inspector, true);
             typeof(DistanceFadeBulkSetterEditor).GetField("showAdvanced", flags).SetValue(inspector, true);
             inspector.serializedObject.FindProperty("excludedMaterials").isExpanded = true;
             var window = ScriptableObject.CreateInstance<DistanceFadeInspectorTestWindow>();

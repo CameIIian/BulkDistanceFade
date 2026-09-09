@@ -12,8 +12,9 @@ namespace Camellian.DistanceFade.Editor
         private bool refreshed;
         private bool enabledLast;
         // View state belongs to this Inspector, never to the avatar's serialized settings.
-        private bool showExclusions;
         private bool showAdvanced;
+        private int selectedPreset;
+        private string presetError;
 
         private void OnEnable()
         {
@@ -43,7 +44,9 @@ namespace Camellian.DistanceFade.Editor
             EditorGUILayout.LabelField("対象範囲", "アバター全体（非アクティブを含む）");
             EditorGUILayout.Space();
             EditorGUILayout.LabelField("2. 基本設定", EditorStyles.boldLabel);
-            EditorGUILayout.LabelField("変更する項目だけ左端のチェックをONにしてください。", EditorStyles.wordWrappedMiniLabel);
+            DrawPresets();
+            EditorGUILayout.Space();
+            EditorGUI.BeginChangeCheck();
             EditorGUILayout.LabelField("距離フェード", EditorStyles.boldLabel);
             Field("overrideStartDistance", "startDistance", "開始距離");
             Field("overrideEndDistance", "endDistance", "終了距離");
@@ -53,6 +56,7 @@ namespace Camellian.DistanceFade.Editor
             EditorGUILayout.LabelField("リム", EditorStyles.boldLabel);
             Field("overrideRimColor", "rimColor", "色");
             Field("overrideRimFresnelPower", "rimFresnelPower", "リムライトの細さ");
+            if (EditorGUI.EndChangeCheck()) selectedPreset = 0;
             DrawOptions();
             if (serializedObject.ApplyModifiedProperties()) Invalidate();
 
@@ -71,10 +75,37 @@ namespace Camellian.DistanceFade.Editor
                 if (summary.Missing.Count > 0)
                     EditorGUILayout.HelpBox($"{summary.Missing.Count} Materialで適用項目の一部が非対応です。", MessageType.Warning);
             }
-            if (stale) EditorGUILayout.HelpBox("設定または構成が変更されました。集計を更新してください。", MessageType.Info);
-            if (GUILayout.Button("集計を更新")) RefreshSummary();
+            if (stale) EditorGUILayout.HelpBox("設定が変更されました。確認のために再集計を推奨します。", MessageType.Info);
+            if (GUILayout.Button("再集計")) RefreshSummary();
             EditorGUILayout.HelpBox("集計は対象件数の確認用です。更新しなくても、NDMFビルド時に最新の設定で処理されます。" +
                 "MA・TTT処理後の対象数とは異なる場合があります。", MessageType.Info);
+        }
+
+        private void DrawPresets()
+        {
+            var presets = DistanceFadePresets.BuiltIn;
+            if (presets.Length == 0) return;
+            selectedPreset = Mathf.Clamp(selectedPreset, 0, presets.Length);
+            var names = new string[presets.Length + 1];
+            names[0] = "現在の設定（個別指定）";
+            for (var i = 0; i < presets.Length; i++) names[i + 1] = presets[i]?.Name ?? "未定義";
+            EditorGUI.BeginChangeCheck();
+            var nextPreset = EditorGUILayout.Popup("プリセット", selectedPreset, names);
+            if (EditorGUI.EndChangeCheck())
+            {
+                presetError = null;
+                if (nextPreset == 0) selectedPreset = 0;
+                else
+                {
+                    try
+                    {
+                        DistanceFadePresets.Apply(serializedObject, presets[nextPreset - 1]);
+                        selectedPreset = nextPreset;
+                    }
+                    catch (System.ArgumentException ex) { presetError = ex.Message; }
+                }
+            }
+            if (presetError != null) EditorGUILayout.HelpBox(presetError, MessageType.Error);
         }
 
         private void DrawOptions()
@@ -84,16 +115,12 @@ namespace Camellian.DistanceFade.Editor
             EditorGUILayout.LabelField("見出しをクリックして開閉します。閉じても設定は適用されます。", EditorStyles.wordWrappedMiniLabel);
 
             var exclusions = serializedObject.FindProperty("excludedMaterials");
-            // Array PropertyField draws its own foldout header. Keep outer foldouts ungrouped.
-            showExclusions = EditorGUILayout.Foldout(showExclusions, $"除外マテリアル（登録枠 {exclusions.arraySize}）", true, EditorStyles.foldoutHeader);
-            if (showExclusions)
+            // Use the array's own header as the only foldout for material exclusions.
+            EditorGUILayout.PropertyField(exclusions, new GUIContent("除外マテリアル"), true);
+            if (exclusions.isExpanded)
             {
-                using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
-                {
-                    EditorGUILayout.PropertyField(exclusions, new GUIContent("除外リスト"), true);
-                    EditorGUILayout.HelpBox("指定したMaterialを使うすべてのスロットを除外します。未設定・重複要素は無視します。" +
-                        "他ツールによる置換後の除外は、NDMFに置換元が登録されている場合に引き継がれます。", MessageType.Info);
-                }
+                EditorGUILayout.HelpBox("指定したMaterialを使うすべてのスロットを除外します。未設定・重複要素は無視します。" +
+                    "他ツールによる置換後の除外は、NDMFに置換元が登録されている場合に引き継がれます。", MessageType.Info);
             }
             showAdvanced = EditorGUILayout.Foldout(showAdvanced, "高度な設定", true, EditorStyles.foldoutHeader);
             if (showAdvanced)
@@ -129,7 +156,10 @@ namespace Camellian.DistanceFade.Editor
                         property.floatValue = Mathf.Clamp(property.floatValue, 0.01f, 50);
                     if ((value == "fadeColor" || value == "rimColor") &&
                         GUILayout.Button(new GUIContent("初期色", "この色だけを初期値に戻します。他の設定は変更しません。"), GUILayout.Width(54)))
+                    {
                         ResetColorToDefault(property);
+                        selectedPreset = 0;
+                    }
                 }
             }
         }
@@ -148,13 +178,14 @@ namespace Camellian.DistanceFade.Editor
         {
             var current = property.intValue;
             var known = current == 0 || current == 1;
-            var labels = known ? new[] { "頂点", "座標" } : new[] { "頂点", "座標", $"未対応値 ({current})" };
+            var labels = known
+                ? new[] { new GUIContent("頂点"), new GUIContent("座標") }
+                : new[] { new GUIContent("頂点"), new GUIContent("座標"), new GUIContent($"未対応値 ({current})") };
             var values = known ? new[] { 0, 1 } : new[] { 0, 1, current };
             var rect = EditorGUILayout.GetControlRect();
             var content = EditorGUI.BeginProperty(rect, new GUIContent(label), property);
             EditorGUI.BeginChangeCheck();
-            var selected = EditorGUI.IntPopup(rect, content, current,
-                System.Array.ConvertAll(labels, text => new GUIContent(text)), values);
+            var selected = EditorGUI.IntPopup(rect, content, current, labels, values);
             if (EditorGUI.EndChangeCheck()) property.intValue = selected;
             EditorGUI.EndProperty();
         }

@@ -53,7 +53,7 @@ Unity Editorを実行できるライセンス環境が必要です。Inspector�
 
 ### 確認済みのテストと資料
 
-2026-09-09のUnity 2022.3.22f1による実行で、**Edit Modeテスト54件合格・失敗0件・スキップ0件**を確認しています。非破壊適用、共有Material、部分上書き、配置・入力検証、除外とNDMF置換追跡、Prefab保存・互換性、Undo／Redo、裏面とモードの初期適用OFFによる既存値保持、初期色のRGB正規化と色単位の初期化・Undo／Redo、除外リストを展開したInspectorの描画、集計未更新時の最新設定適用を含みます。これは実アップロードや全対応環境の見た目を検証した結果ではありません。
+2026-09-09のUnity 2022.3.22f1による実行で、**Edit Modeテスト61件合格・失敗0件・スキップ0件**を確認しています。非破壊適用、共有Material、部分上書き、配置・入力検証、除外とNDMF置換追跡、Prefab保存・互換性、Undo／Redo、裏面とモードの初期適用OFFによる既存値保持、初期色のRGB正規化と色単位の初期化・Undo／Redo、除外リストを展開したInspectorの描画、集計未更新時の最新設定適用、プリセットの6値反映・既存オプション保持・不正値拒否を含みます。これは実アップロードや全対応環境の見た目を検証した結果ではありません。
 
 リポジトリ全体に含まれる関連資料：
 
@@ -67,6 +67,7 @@ Unity Editorを実行できるライセンス環境が必要です。Inspector�
 
 | 調整内容 | 編集箇所 |
 | --- | --- |
+| 組み込みプリセットの名前と6項目 | `Packages/com.camellian.liltoon-distance-fade/Editor/DistanceFadePresets.cs` の `BuiltIn` |
 | コンポーネント追加メニュー、保存する変数・型・初期値 | Runtime/DistanceFadeBulkSetter.cs（リポジトリ内の `Packages/com.camellian.liltoon-distance-fade/Runtime/DistanceFadeBulkSetter.cs`） |
 | Inspectorのラベル・並び・説明・入力欄 | Editor/DistanceFadeBulkSetterEditor.cs（リポジトリ内の `Packages/com.camellian.liltoon-distance-fade/Editor/DistanceFadeBulkSetterEditor.cs`）の `OnInspectorGUI`、`Field`、`ModeField` |
 | 適用項目の識別、入力検証、ビルド用設定の取り込み | Editor/SettingsValidator.cs（リポジトリ内の `Packages/com.camellian.liltoon-distance-fade/Editor/SettingsValidator.cs`）の `Overrides`、`SettingsSnapshot`、`Capture` |

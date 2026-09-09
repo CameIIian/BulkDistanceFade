@@ -57,7 +57,7 @@ namespace Camellian.DistanceFade.Editor
 
         internal static string Path(Transform t) => t.parent == null ? t.name : Path(t.parent) + "/" + t.name;
         internal static bool Finite(float value) => !float.IsNaN(value) && !float.IsInfinity(value);
-        private static bool Finite(Color c) => Finite(c.r) && Finite(c.g) && Finite(c.b) && Finite(c.a);
+        internal static bool Finite(Color c) => Finite(c.r) && Finite(c.g) && Finite(c.b) && Finite(c.a);
 
         internal static SettingsSnapshot Capture(DistanceFadeBulkSetter s)
         {
