@@ -65,7 +65,7 @@ NDMFのルート取得と一時アセット判定には、採用バージョン�
 
 ### 3.1 必須配置
 
-設定コンポーネント名は`DistanceFadeBulkSetter`、Inspector上の表示名は「lilToon Distance Fade Bulk Setter」とする。
+設定コンポーネント名は`DistanceFadeBulkSetter`、Inspector内の見出しは「BulkDistanceFade」とする。Add Componentのメニューは`BulkDistanceFade/Distance Fade Bulk Setter`とし、公式機能と誤認されない独立した分類を使用する（2026-09-09改訂）。
 
 **`VRC Avatar Descriptor`と同じGameObject、すなわちアバタールートにのみ取り付ける。** 衣装、Armature、身体メッシュ、設定用の空GameObjectなど、子オブジェクトへの取り付けは許可しない。親にアバタールートが見つかっても、その子に付いた設定を採用しない。
 
@@ -153,7 +153,7 @@ Backface Shadowは適用ONのときだけ`false=0`、`true=1`として書く。O
 ### 5.1 レイアウト
 
 ```text
-lilToon Distance Fade Bulk Setter [コンポーネント有効チェック]
+BulkDistanceFade [コンポーネント有効チェック]
 配置先: AvatarRoot
 対象範囲: アバター全体（非アクティブを含む）
 Strict lilToon Check [ON]
@@ -188,7 +188,7 @@ Strict lilToon Check [ON]
 
 1. 必須パッケージと本ツールを導入する。
 2. Hierarchyで`VRC Avatar Descriptor`のあるアバタールートを選択する。
-3. 「lilToon Distance Fade Bulk Setter」を1個追加する。
+3. Add Componentから`BulkDistanceFade/Distance Fade Bulk Setter`を1個追加する。
 4. 適用項目、距離、強度、色等を指定する。強度の初期値は`0`であることを確認する。
 5. Inspectorの配置・入力エラーを解消する。
 6. NDMFが処理するPlay Modeまたはビルドで結果を確認する。

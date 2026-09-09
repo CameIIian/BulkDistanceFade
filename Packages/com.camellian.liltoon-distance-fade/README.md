@@ -1,6 +1,8 @@
-# lilToon Distance Fade Bulk Setter
+# BulkDistanceFade
 
 アバタールートの設定を、NDMFビルド時に全lilToon Materialへ適用するUnity Editor拡張です。元のMaterial、Prefab、Textureは変更しません。
+
+本パッケージはlilToon公式の機能ではなく、lilToonに対応する独立した拡張です。
 
 ## 導入
 
@@ -11,7 +13,7 @@ VPM用のメタデータを含みますが、公開VPMリポジトリへの登�
 ## 使い方
 
 1. Hierarchyで**VRC Avatar Descriptorと同じアバタールートGameObject**を選びます。
-2. Add Componentから`lilToon/Distance Fade Bulk Setter`を追加します。
+2. Add Componentから`BulkDistanceFade/Distance Fade Bulk Setter`を追加します。
 3. 距離、強度、色等を設定し、変更したくない項目は「適用」をOFFにします。
 4. 処理したくないMaterialを「除外マテリアル」に追加します。同じMaterialを使うすべてのスロットが除外されます。
 5. 「集計を更新」で編集時の対象件数・除外件数と設定エラーを確認します。
@@ -52,6 +54,20 @@ Unity Test RunnerでEdit Modeテストを実行するには、導入先の`Packa
 ```
 
 既存の`testables`がある場合は配列に追加してください。Unity Test Frameworkも必要です。
+
+## 設定画面・変数の編集箇所
+
+| 調整内容 | ファイル・箇所 |
+| --- | --- |
+| コンポーネント追加メニュー | [Runtime/DistanceFadeBulkSetter.cs](Runtime/DistanceFadeBulkSetter.cs)の`AddComponentMenu` |
+| 保存する変数、型、新規追加時の初期値 | 同ファイルの公開フィールド（`startDistance`、`strength`、`excludedMaterials`など） |
+| Inspectorのラベル、並び、説明、入力欄 | [Editor/DistanceFadeBulkSetterEditor.cs](Editor/DistanceFadeBulkSetterEditor.cs)の`OnInspectorGUI`と`Field` |
+| 入力検証、ビルド用設定への取り込み | [Editor/SettingsValidator.cs](Editor/SettingsValidator.cs)の`Overrides`、`SettingsSnapshot`、`Capture` |
+| ShaderのProperty名と値の書き込み | [Editor/MaterialUtility.cs](Editor/MaterialUtility.cs)の定数、`Supported`、`Apply` |
+
+例えば`Field("overrideStartDistance", "startDistance", "開始距離")`は、「適用」のbool変数、値の変数、表示ラベルの順です。表示名だけを変える場合は第3引数を編集します。新しい設定項目を増やす場合は、変数とInspectorに加え、検証・取り込み・書き込み側も対応させます。専用Inspectorのため、公開変数を増やすだけでは画面には表示されません。
+
+コードの初期値変更は、既にScene／Prefabへ保存された設定値を一括更新しません。既存コンポーネントの値はUnityのInspectorで編集してください。保存済み設定を維持するため、既存フィールド名の変更には`FormerlySerializedAs`等による移行対応が必要です。
 
 ## ライセンス
 

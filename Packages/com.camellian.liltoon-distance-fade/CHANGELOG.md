@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- コンポーネント追加メニューを`BulkDistanceFade/Distance Fade Bulk Setter`へ変更し、Inspector・NDMF・Package Managerの表示名を`BulkDistanceFade`に統一。
+
 - Inspectorへマテリアル除外リストを追加。共有スロットをまとめて除外し、対象・除外件数を表示。
 - NDMFに登録済みの置換元情報を使い、先行処理によるMaterial置換後も除外を追跡。
 - 除外・非破壊性・NDMF連携・シリアライズ互換性・Undo／Redoの回帰テストを追加。

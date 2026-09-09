@@ -1,6 +1,6 @@
 {
   "name": "com.camellian.liltoon-distance-fade",
-  "displayName": "lilToon Distance Fade Bulk Setter",
+  "displayName": "BulkDistanceFade",
   "version": "0.1.0",
   "unity": "2022.3",
   "description": "Non-destructive avatar-wide lilToon distance fade settings for NDMF.",

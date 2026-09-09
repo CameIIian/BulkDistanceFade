@@ -32,7 +32,7 @@ namespace Camellian.DistanceFade.Editor
             var setting = (DistanceFadeBulkSetter)target;
             if (enabledLast != setting.enabled) { enabledLast = setting.enabled; Invalidate(); }
             serializedObject.Update();
-            EditorGUILayout.LabelField("lilToon Distance Fade Bulk Setter", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("BulkDistanceFade", EditorStyles.boldLabel);
             EditorGUILayout.PropertyField(serializedObject.FindProperty("m_Enabled"), new GUIContent("処理を有効化"));
             EditorGUILayout.LabelField("配置先", setting.gameObject.name);
             EditorGUILayout.LabelField("対象範囲", "アバター全体（非アクティブを含む）");
@@ -42,7 +42,7 @@ namespace Camellian.DistanceFade.Editor
                 "他ツールによる置換後の除外は、NDMFに置換元が登録されている場合に引き継がれます。", MessageType.Info);
             EditorGUILayout.Space();
             EditorGUILayout.LabelField("距離フェード", EditorStyles.boldLabel);
-            Field("overrideFadeColor", "fadeColor", "フェード色");
+            Field("overrideFadeColor", "fadeColor", "色");
             Field("overrideStartDistance", "startDistance", "開始距離");
             Field("overrideEndDistance", "endDistance", "終了距離");
             Field("overrideStrength", "strength", "強度");
@@ -52,8 +52,8 @@ namespace Camellian.DistanceFade.Editor
             EditorGUILayout.LabelField("その他のモード値も数値のまま保持します。", EditorStyles.miniLabel);
             EditorGUILayout.Space();
             EditorGUILayout.LabelField("リム", EditorStyles.boldLabel);
-            Field("overrideRimColor", "rimColor", "リム色");
-            Field("overrideRimFresnelPower", "rimFresnelPower", "フレネル指数");
+            Field("overrideRimColor", "rimColor", "色");
+            Field("overrideRimFresnelPower", "rimFresnelPower", "リムライトの細さ");
             if (serializedObject.ApplyModifiedProperties()) Invalidate();
 
             if (!refreshed) RefreshSummary();
