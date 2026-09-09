@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- 「裏面を陰にする」と「モード」の適用チェックを初期OFFへ変更。値の入力はチェックボックスと「頂点／座標」のプルダウンを使用し、保存済みの未知Mode値は保持。
+
 - コンポーネント追加メニューを`BulkDistanceFade/Distance Fade Bulk Setter`へ変更し、Inspector・NDMF・Package Managerの表示名を`BulkDistanceFade`に統一。
 
 - Inspectorへマテリアル除外リストを追加。共有スロットをまとめて除外し、対象・除外件数を表示。

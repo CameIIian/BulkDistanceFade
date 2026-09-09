@@ -76,6 +76,14 @@ Unity 2022.3.22f1のバッチ実行でコンパイル成功、Edit Modeテスト
 
 Inspectorの目視・ドラッグ操作、実MA／TTT／AAO構成、実アップロードは今回も未実施。置換追跡テストには、NDMFへ置換情報を登録する専用の先行テストプラグインを使用した。
 
+## 裏面・モードのUIと初期適用状態の変更（2026-09-09）
+
+`overrideBackfaceShadow`と`overrideMode`の新規追加時の初期値をfalseへ変更した。裏面の値はboolのチェックボックス、モードは「頂点」(0)／「座標」(1)のプルダウンとした。未知Mode値は別の表示項目として保持し、Inspectorの表示だけで変更しない。既存Scene／Prefabに保存された適用状態は維持する。
+
+手動編集で`backfaceShadow`へ代入されていたColor値はbool型と不整合のためfalseへ修正した。同時に存在していた色・開始距離・強度の初期値やInspectorラベルの手動変更は保持した。
+
+既存の全項目適用テストは裏面・モードを明示ONにするよう変更し、部分上書きテストは試験用の開始距離を明示した。新規コンポーネントがMaterialの裏面・Modeを保持する回帰テストを1件追加した。`./scripts/Run-Tests.ps1`によるUnity 2022.3.22f1のコンパイルとEdit Modeテストは **49件合格／失敗0件／スキップ0件**。結果は`.verification~/editmode-results.xml`、ログは`.verification~/editmode.log`。Inspectorの目視操作は未実施。
+
 ## 残る手動検証・リリース条件
 
 - MAでの衣装追加、TTTでのMaterial差し替え、AAO最適化を含む実アバターでの最終出力確認。

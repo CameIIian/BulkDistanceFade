@@ -18,9 +18,9 @@ namespace Camellian.DistanceFade
         public float endDistance = 0.01f;
         public bool overrideStrength = true;
         public float strength = 0.95f;
-        public bool overrideBackfaceShadow = true;
-        public bool backfaceShadow = new Color(255, 188, 177, 0);
-        public bool overrideMode = true;
+        public bool overrideBackfaceShadow = false;
+        public bool backfaceShadow = false;
+        public bool overrideMode = false;
         public int mode;
         public bool overrideRimColor = true;
         [ColorUsage(true, true)] public Color rimColor = new Color(0, 0, 0, 0);

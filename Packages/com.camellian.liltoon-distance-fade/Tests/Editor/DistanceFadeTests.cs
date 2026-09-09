@@ -67,7 +67,9 @@ namespace Camellian.DistanceFade.Tests
             setting.startDistance = 0.8f;
             setting.endDistance = 0.2f;
             setting.strength = 0.9f;
+            setting.overrideBackfaceShadow = true;
             setting.backfaceShadow = true;
+            setting.overrideMode = true;
             setting.mode = 17;
             setting.rimColor = new Color(2, 4, 6, 0.7f);
             setting.rimFresnelPower = 7;
@@ -82,6 +84,21 @@ namespace Camellian.DistanceFade.Tests
             Assert.That(EditorJsonUtility.ToJson(material), Is.EqualTo(before));
             Assert.That(root.GetComponent<DistanceFadeBulkSetter>(), Is.Null);
             Assert.That(result.Clones, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void DefaultSettingsPreserveMaterialBackfaceAndMode()
+        {
+            Assert.That(setting.overrideBackfaceShadow, Is.False);
+            Assert.That(setting.overrideMode, Is.False);
+            Assert.That(setting.backfaceShadow, Is.False);
+            material.SetVector(MaterialUtility.Vector, new Vector4(0.4f, 0.2f, 0.7f, 1));
+            material.SetInt(MaterialUtility.Mode, 1);
+            var r = Renderer(material);
+            Apply();
+            Assert.That(r.sharedMaterial, Is.Not.SameAs(material));
+            Assert.That(r.sharedMaterial.GetVector(MaterialUtility.Vector).w, Is.EqualTo(1));
+            Assert.That(r.sharedMaterial.GetInt(MaterialUtility.Mode), Is.EqualTo(1));
         }
 
         [Test]
@@ -107,6 +124,7 @@ namespace Camellian.DistanceFade.Tests
             material.SetVector(MaterialUtility.Vector, new Vector4(0.4f, 0.2f, 0.7f, 3));
             AllOff();
             setting.overrideStartDistance = true;
+            setting.startDistance = 0.1f;
             var r = Renderer(material);
             Apply();
             Assert.That(r.sharedMaterial.GetVector(MaterialUtility.Vector), Is.EqualTo(new Vector4(0.1f, 0.2f, 0.7f, 3)));

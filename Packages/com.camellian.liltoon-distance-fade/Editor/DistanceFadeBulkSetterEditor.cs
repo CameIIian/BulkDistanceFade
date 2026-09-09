@@ -46,10 +46,8 @@ namespace Camellian.DistanceFade.Editor
             Field("overrideStartDistance", "startDistance", "開始距離");
             Field("overrideEndDistance", "endDistance", "終了距離");
             Field("overrideStrength", "strength", "強度");
-            Field("overrideBackfaceShadow", "backfaceShadow", "裏面を影にする");
+            Field("overrideBackfaceShadow", "backfaceShadow", "裏面を陰にする");
             Field("overrideMode", "mode", "モード");
-            EditorGUILayout.LabelField("モード: 0 = 頂点 / 1 = オブジェクト位置", EditorStyles.miniLabel);
-            EditorGUILayout.LabelField("その他のモード値も数値のまま保持します。", EditorStyles.miniLabel);
             EditorGUILayout.Space();
             EditorGUILayout.LabelField("リム", EditorStyles.boldLabel);
             Field("overrideRimColor", "rimColor", "色");
@@ -87,11 +85,27 @@ namespace Camellian.DistanceFade.Editor
                 using (new EditorGUI.DisabledScope(!apply.boolValue))
                 {
                     EditorGUI.BeginChangeCheck();
-                    EditorGUILayout.PropertyField(property, new GUIContent(label));
+                    if (value == "mode") ModeField(property, label);
+                    else EditorGUILayout.PropertyField(property, new GUIContent(label));
                     if (EditorGUI.EndChangeCheck() && value == "rimFresnelPower" && SettingsValidator.Finite(property.floatValue))
                         property.floatValue = Mathf.Clamp(property.floatValue, 0.01f, 50);
                 }
             }
+        }
+
+        private static void ModeField(SerializedProperty property, string label)
+        {
+            var current = property.intValue;
+            var known = current == 0 || current == 1;
+            var labels = known ? new[] { "頂点", "座標" } : new[] { "頂点", "座標", $"未対応値 ({current})" };
+            var values = known ? new[] { 0, 1 } : new[] { 0, 1, current };
+            var rect = EditorGUILayout.GetControlRect();
+            var content = EditorGUI.BeginProperty(rect, new GUIContent(label), property);
+            EditorGUI.BeginChangeCheck();
+            var selected = EditorGUI.IntPopup(rect, content, current,
+                System.Array.ConvertAll(labels, text => new GUIContent(text)), values);
+            if (EditorGUI.EndChangeCheck()) property.intValue = selected;
+            EditorGUI.EndProperty();
         }
 
         private void ValidateOnly()
