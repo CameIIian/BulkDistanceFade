@@ -34,6 +34,7 @@ namespace Camellian.DistanceFade.Tests
         {
             LateMaterialReplacementTestPlugin.Target = null;
             LateMaterialReplacementTestPlugin.Replacement = null;
+            LateMaterialReplacementTestPlugin.RegisterOrigin = false;
             foreach (var obj in owned.AsEnumerable().Reverse()) if (obj != null) Object.DestroyImmediate(obj);
             owned.Clear();
         }
@@ -310,7 +311,266 @@ namespace Camellian.DistanceFade.Tests
         }
 
         [Test]
-        public void PersistentSourceAssetBytesRemainUnchanged()
+        public void ExclusionPreservesSharedSlotsAndDistinguishesSameNamedMaterials()
+        {
+            var included = Own(new Material(material) { name = material.name });
+            var unused = Own(new Material(material));
+            var deleted = new Material(material);
+            Object.DestroyImmediate(deleted);
+            setting.excludedMaterials = new[] { material, null, material, unused, deleted };
+            var before = EditorJsonUtility.ToJson(material);
+            var a = Renderer(material, included, null, material);
+            var b = Renderer(material, included);
+            b.enabled = false;
+            b.gameObject.SetActive(false);
+            var child = Own(new GameObject("Skinned"));
+            child.transform.SetParent(root.transform);
+            var skinned = child.AddComponent<SkinnedMeshRenderer>();
+            skinned.sharedMaterials = new[] { material, material };
+            skinned.enabled = false;
+            var result = Apply();
+            Assert.That(result.ScannedRenderers, Is.EqualTo(3));
+            Assert.That(result.TargetRenderers, Is.EqualTo(2));
+            Assert.That(result.TargetMaterials, Is.EqualTo(1));
+            Assert.That(result.Clones, Is.EqualTo(1));
+            Assert.That(result.ReplacedSlots, Is.EqualTo(2));
+            Assert.That(result.ExcludedMaterials, Is.EqualTo(1));
+            Assert.That(result.ExcludedSlots, Is.EqualTo(5));
+            Assert.That(result.SkippedSlots["手動除外"], Is.EqualTo(5));
+            Assert.That(a.sharedMaterials, Is.EqualTo(new[] { material, b.sharedMaterials[1], null, material }));
+            Assert.That(b.sharedMaterials[0], Is.SameAs(material));
+            Assert.That(b.sharedMaterials[1], Is.Not.SameAs(included));
+            Assert.That(skinned.sharedMaterials, Is.EqualTo(new[] { material, material }));
+            Assert.That(EditorJsonUtility.ToJson(material), Is.EqualTo(before));
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public void EmptyOrNullExclusionKeepsExistingBehavior(bool nullArray)
+        {
+            Assert.That(setting.excludedMaterials, Is.Empty);
+            if (nullArray) setting.excludedMaterials = null;
+            var r = Renderer(material);
+            var summary = Apply();
+            Assert.That(summary.Clones, Is.EqualTo(1));
+            Assert.That(summary.ExcludedSlots, Is.Zero);
+            Assert.That(r.sharedMaterial, Is.Not.SameAs(material));
+        }
+
+        [Test]
+        public void AllExcludedSkipsSavingAndRemovesOutputSetting()
+        {
+            setting.excludedMaterials = new[] { material };
+            var r = Renderer(material, material);
+            var result = ApplyDistanceFadePass.Apply(root, m => Assert.Fail("Excluded materials must not be saved."));
+            Assert.That(result.TargetRenderers, Is.Zero);
+            Assert.That(result.TargetMaterials, Is.Zero);
+            Assert.That(result.Clones, Is.Zero);
+            Assert.That(result.ReplacedSlots, Is.Zero);
+            Assert.That(result.ExcludedSlots, Is.EqualTo(2));
+            Assert.That(r.sharedMaterials, Is.EqualTo(new[] { material, material }));
+            Assert.That(root.GetComponent<DistanceFadeBulkSetter>(), Is.Null);
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public void DisabledOrAllOffTakesPriorityOverExclusion(bool disabled)
+        {
+            setting.excludedMaterials = new[] { material };
+            if (disabled) setting.enabled = false;
+            else AllOff();
+            var r = Renderer(material);
+            var result = Apply();
+            Assert.That(result.ExcludedSlots, Is.Zero);
+            Assert.That(result.Clones, Is.Zero);
+            if (!disabled) Assert.That(result.SkippedSlots["全項目OFF"], Is.EqualTo(1));
+            Assert.That(r.sharedMaterial, Is.SameAs(material));
+            Assert.That(root.GetComponent<DistanceFadeBulkSetter>(), Is.Null);
+        }
+
+        [Test]
+        public void ExclusionDoesNotBypassSettingsValidation()
+        {
+            setting.excludedMaterials = new[] { material };
+            setting.strength = float.NaN;
+            Renderer(material);
+            Assert.That(Assert.Throws<SettingsException>(() => Apply()).Message, Does.StartWith("E003"));
+        }
+
+        [Test]
+        public void ExcludedUnsupportedMaterialsDoNotWarn()
+        {
+            var partial = Own(new Material(Shader.Find("DistanceFadeTests/lilToonPartial")));
+            var standard = Own(new Material(Shader.Find("Standard")));
+            setting.strictLilToonCheck = false;
+            setting.excludedMaterials = new[] { partial, standard };
+            Renderer(partial, partial, standard);
+            var result = Apply();
+            Assert.That(result.Missing, Is.Empty);
+            Assert.That(result.ExcludedMaterials, Is.EqualTo(2));
+            Assert.That(result.ExcludedSlots, Is.EqualTo(3));
+            Assert.That(result.Clones, Is.Zero);
+        }
+
+        [Test]
+        public void ExclusionSnapshotAndCollectionAreReadOnly()
+        {
+            setting.excludedMaterials = new[] { material, null, material };
+            var snapshot = SettingsValidator.Capture(setting);
+            Assert.That(setting.excludedMaterials.Length, Is.EqualTo(3));
+            setting.excludedMaterials[0] = null;
+            setting.excludedMaterials[2] = null;
+            var before = EditorJsonUtility.ToJson(setting);
+            var materialBefore = EditorJsonUtility.ToJson(material);
+            var r = Renderer(material);
+            IObjectRegistry registry = new ObjectRegistry(root.transform);
+            using (new ObjectRegistryScope(registry))
+            {
+                var plan = ApplyDistanceFadePass.Collect(root, snapshot);
+                Assert.That(plan.Summary.ExcludedSlots, Is.EqualTo(1));
+                Assert.That(plan.Summary.Clones, Is.Zero);
+                Assert.That(registry.GetReference(material, false), Is.Null);
+            }
+            Assert.That(r.sharedMaterial, Is.SameAs(material));
+            Assert.That(EditorJsonUtility.ToJson(setting), Is.EqualTo(before));
+            Assert.That(EditorJsonUtility.ToJson(material), Is.EqualTo(materialBefore));
+            Assert.That(ApplyDistanceFadePass.Collect(root, SettingsValidator.Capture(setting)).Summary.TargetMaterials, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void ExclusionFollowsRegisteredChainsAndBranchesOnlyWithinBuild()
+        {
+            var intermediate = Own(new Material(material));
+            var final = Own(new Material(material));
+            var sibling = Own(new Material(material));
+            setting.excludedMaterials = new[] { intermediate };
+            Renderer(material, final, sibling);
+            using (new ObjectRegistryScope(new ObjectRegistry(root.transform)))
+            {
+                ObjectRegistry.RegisterReplacedObject(material, intermediate);
+                ObjectRegistry.RegisterReplacedObject(intermediate, final);
+                ObjectRegistry.RegisterReplacedObject(material, sibling);
+                var result = ApplyDistanceFadePass.Collect(root, SettingsValidator.Capture(setting)).Summary;
+                Assert.That(result.ExcludedMaterials, Is.EqualTo(3));
+                Assert.That(result.ExcludedSlots, Is.EqualTo(3));
+                Assert.That(result.TargetMaterials, Is.Zero);
+            }
+            using (new ObjectRegistryScope(new ObjectRegistry(root.transform)))
+            {
+                var result = Apply();
+                Assert.That(result.ExcludedSlots, Is.Zero);
+                Assert.That(result.Clones, Is.EqualTo(3));
+            }
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public void NdmfReplacementExclusionRequiresRegisteredOrigin(bool registered)
+        {
+            var sourceRenderer = Renderer(material);
+            setting.excludedMaterials = new[] { material };
+            setting.strength = 0.75f;
+            var replacement = Own(new Material(material));
+            replacement.SetVector(MaterialUtility.Vector, new Vector4(0.8f, 0.3f, 0.2f, 0));
+            var before = EditorJsonUtility.ToJson(replacement);
+            var clone = Own(Object.Instantiate(root));
+            LateMaterialReplacementTestPlugin.Target = clone;
+            LateMaterialReplacementTestPlugin.Replacement = replacement;
+            LateMaterialReplacementTestPlugin.RegisterOrigin = registered;
+            using (new OverrideTemporaryDirectoryScope(null)) AvatarProcessor.ProcessAvatar(clone);
+            var output = clone.GetComponentInChildren<MeshRenderer>().sharedMaterial;
+            if (output != replacement && output != material) Own(output);
+            if (registered) Assert.That(output, Is.SameAs(replacement));
+            else
+            {
+                Assert.That(output, Is.Not.SameAs(replacement));
+                Assert.That(output.GetVector(MaterialUtility.Vector).z, Is.EqualTo(0.75f));
+            }
+            Assert.That(EditorJsonUtility.ToJson(replacement), Is.EqualTo(before));
+            Assert.That(sourceRenderer.sharedMaterial, Is.SameAs(material));
+            Assert.That(setting.excludedMaterials, Is.EqualTo(new[] { material }));
+            Assert.That(clone.GetComponent<DistanceFadeBulkSetter>(), Is.Null);
+        }
+
+        [Test]
+        public void NdmfBuildCloneKeepsDirectExclusion()
+        {
+            Renderer(material);
+            setting.excludedMaterials = new[] { material };
+            var clone = Own(Object.Instantiate(root));
+            using (new OverrideTemporaryDirectoryScope(null)) AvatarProcessor.ProcessAvatar(clone);
+            Assert.That(clone.GetComponentInChildren<MeshRenderer>().sharedMaterial, Is.SameAs(material));
+            Assert.That(clone.GetComponent<DistanceFadeBulkSetter>(), Is.Null);
+            Assert.That(root.GetComponent<DistanceFadeBulkSetter>(), Is.SameAs(setting));
+        }
+
+        [Test]
+        public void SerializedExclusionSupportsUndoAndRedo()
+        {
+            Undo.IncrementCurrentGroup();
+            var serialized = new SerializedObject(setting);
+            var exclusions = serialized.FindProperty("excludedMaterials");
+            exclusions.arraySize = 1;
+            exclusions.GetArrayElementAtIndex(0).objectReferenceValue = material;
+            serialized.ApplyModifiedProperties();
+            Undo.FlushUndoRecordObjects();
+            Assert.That(setting.excludedMaterials, Is.EqualTo(new[] { material }));
+            Undo.PerformUndo();
+            Assert.That(setting.excludedMaterials, Is.Empty);
+            Undo.PerformRedo();
+            Assert.That(setting.excludedMaterials, Is.EqualTo(new[] { material }));
+            Undo.ClearUndo(setting);
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public void PrefabExclusionsRoundTripAndLegacyDataLoads(bool legacy)
+        {
+            var prefix = "Assets/DistanceFadeExclusion_" + Guid.NewGuid().ToString("N");
+            var materialPath = prefix + ".mat";
+            var prefabPath = prefix + ".prefab";
+            var persistent = new Material(material);
+            GameObject instance = null;
+            try
+            {
+                AssetDatabase.CreateAsset(persistent, materialPath);
+                setting.excludedMaterials = new[] { persistent };
+                PrefabUtility.SaveAsPrefabAsset(root, prefabPath);
+                if (legacy)
+                {
+                    var yaml = System.IO.File.ReadAllText(prefabPath);
+                    var oldYaml = System.Text.RegularExpressions.Regex.Replace(yaml,
+                        @"(?m)^  excludedMaterials:.*\r?\n(?:  - .*\r?\n)*", "");
+                    Assert.That(oldYaml, Is.Not.EqualTo(yaml));
+                    System.IO.File.WriteAllText(prefabPath, oldYaml);
+                    AssetDatabase.ImportAsset(prefabPath, ImportAssetOptions.ForceUpdate);
+                }
+                var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
+                instance = (GameObject)PrefabUtility.InstantiatePrefab(prefab);
+                var loaded = instance.GetComponent<DistanceFadeBulkSetter>();
+                var snapshot = SettingsValidator.Capture(loaded);
+                Assert.That(snapshot.ExcludedMaterials.Contains(persistent), Is.EqualTo(!legacy));
+                Assert.That(snapshot.ExcludedMaterials.Count, Is.EqualTo(legacy ? 0 : 1));
+                var serialized = new SerializedObject(loaded);
+                var exclusions = serialized.FindProperty("excludedMaterials");
+                exclusions.arraySize = legacy ? 1 : 0;
+                if (legacy) exclusions.GetArrayElementAtIndex(0).objectReferenceValue = persistent;
+                serialized.ApplyModifiedProperties();
+                Assert.That(PrefabUtility.GetPropertyModifications(instance).Any(p => p.propertyPath.StartsWith("excludedMaterials")), Is.True);
+                Assert.That(SettingsValidator.Capture(prefab.GetComponent<DistanceFadeBulkSetter>()).ExcludedMaterials.Count,
+                    Is.EqualTo(legacy ? 0 : 1), "Editing the instance must preserve the prefab.");
+            }
+            finally
+            {
+                if (instance != null) Object.DestroyImmediate(instance);
+                AssetDatabase.DeleteAsset(prefabPath);
+                AssetDatabase.DeleteAsset(materialPath);
+            }
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public void PersistentSourceAssetBytesRemainUnchanged(bool excluded)
         {
             var assetPath = "Assets/DistanceFadeTest_" + Guid.NewGuid().ToString("N") + ".mat";
             var persistent = new Material(material);
@@ -320,8 +580,11 @@ namespace Camellian.DistanceFade.Tests
                 var bytesBefore = System.IO.File.ReadAllBytes(assetPath);
                 var dirtyBefore = EditorUtility.IsDirty(persistent);
                 var r = Renderer(persistent);
+                if (excluded) setting.excludedMaterials = new[] { persistent };
                 Apply();
-                Assert.That(r.sharedMaterial, Is.Not.SameAs(persistent));
+                // Persistent assets can have distinct managed wrappers for the same Unity object.
+                if (excluded) Assert.That(r.sharedMaterial.GetInstanceID(), Is.EqualTo(persistent.GetInstanceID()));
+                else Assert.That(r.sharedMaterial, Is.Not.SameAs(persistent));
                 Assert.That(System.IO.File.ReadAllBytes(assetPath), Is.EqualTo(bytesBefore));
                 Assert.That(EditorUtility.IsDirty(persistent), Is.EqualTo(dirtyBefore));
             }

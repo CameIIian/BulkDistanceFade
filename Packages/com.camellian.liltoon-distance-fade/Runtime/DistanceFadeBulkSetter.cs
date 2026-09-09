@@ -8,6 +8,7 @@ namespace Camellian.DistanceFade
     public sealed class DistanceFadeBulkSetter : MonoBehaviour, IEditorOnly
     {
         public bool strictLilToonCheck = true;
+        public Material[] excludedMaterials = new Material[0];
 
         public bool overrideFadeColor = true;
         [ColorUsage(true, true)] public Color fadeColor = new Color(0, 0, 0, 1);

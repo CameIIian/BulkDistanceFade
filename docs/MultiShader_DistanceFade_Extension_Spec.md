@@ -37,10 +37,12 @@ ShaderCoreはShaderを構成する基盤、NonToonはその基盤上のShaderと
 - 透明度フェード、Dissolve、輪郭線だけの距離フェードへの自動変換。
 - Shader間で描画結果が完全一致することの保証。
 - AnimationClip、MaterialPropertyBlock、元Prefabの書き換え。
-- 全Shader共通の任意Property編集UI、Materialの手動除外、階層別設定。
+- 全Shader共通の任意Property編集UI、階層別設定。
 - 元Shaderのロック解除、元`.scshader`のモジュール設定変更、元Shaderの再インポート。
 
 ### 2.3 実装順
+
+Materialの手動除外は[マテリアル除外機能 設計書](Material_Exclusion_Spec.md)へ切り出し、現行lilToon処理へ先行実装した（2026-09-09）。マルチShader化の際もShader判定前の共通フィルターとして維持する。
 
 1. **基盤共通化:** lilToonの処理をアダプターへ移し、既存31件のテストを維持する。
 2. **NonToon既存モジュール対応:** Distance Fadeを含む生成済みShaderへの設定を実装する。

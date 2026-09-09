@@ -56,6 +56,26 @@ Unityログ: `.verification~/editmode.log`
 
 パッケージのJSON／assembly定義の構文、全ファイルの`.meta`付属、GUIDの重複なしも確認した。Runtime assemblyにはUnityEditor参照を含めない。テスト用Shaderとテスト用NDMFプラグインはTestsフォルダーに置き、テストassemblyは通常ビルドへ含めない。
 
+## マテリアル除外機能の追加検証（2026-09-09）
+
+[マテリアル除外機能 設計書](Material_Exclusion_Spec.md)を先に作成し、`excludedMaterials`、Inspector配列編集、スナップショット内の除外集合、適用前フィルター、除外Material／Slot集計を実装した。NDMF 1.13.1のローカル`ObjectRegistry.cs`／`ObjectReference.cs`を照合し、登録済みの置換起源を読み取り専用で比較する。未登録の置換は直接参照が一致する場合だけ除外する。
+
+Unity 2022.3.22f1のバッチ実行でコンパイル成功、Edit Modeテスト **48件合格／失敗0件／スキップ0件** を確認した。既存31件に対し17ケースを追加した。実行コマンドは`./scripts/Run-Tests.ps1`、依存パッケージと検証プロジェクトは前述の環境を使用した。
+
+- 同名の別Material、共有・混在Slot、非アクティブ／無効Renderer、SkinnedMeshRendererの除外と集計。
+- 空／null配列、重複、null／削除済み参照、未使用Material、全除外、全項目OFF、コンポーネント無効。
+- 不足Property警告の抑止、不正設定の検証維持、スナップショットの独立性、集計時の設定・Material・Renderer・Registryの不変性。
+- NDMF全パイプライン経由での直接除外、登録済み／未登録の先行Material置換、登録された連鎖・分岐、次回ビルドへの状態非持ち越し。
+- 除外元Materialアセットのファイルバイト列とDirty状態の保持。
+- SerializedObjectによるUndo／Redo、Prefab保存・読み込み・インスタンスoverride、除外フィールドを含まない旧Prefabデータの読み込み。
+
+初回のサンドボックス内実行ではUnityライセンスを取得できず、許可された通常ユーザー環境で再実行した。初回のテスト実行は47件合格・1件失敗で、保存済みMaterialのC#ラッパーを`SameAs`で比較するアサーションが原因だった。UnityのInstance IDによる同一性確認へ修正し、全48件の再実行が合格した。
+
+最新結果XML: `.verification~/editmode-results.xml`  
+最新Unityログ: `.verification~/editmode.log`
+
+Inspectorの目視・ドラッグ操作、実MA／TTT／AAO構成、実アップロードは今回も未実施。置換追跡テストには、NDMFへ置換情報を登録する専用の先行テストプラグインを使用した。
+
 ## 残る手動検証・リリース条件
 
 - MAでの衣装追加、TTTでのMaterial差し替え、AAO最適化を含む実アバターでの最終出力確認。

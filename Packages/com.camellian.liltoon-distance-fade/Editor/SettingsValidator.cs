@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using VRC.SDK3.Avatars.Components;
@@ -22,6 +23,7 @@ namespace Camellian.DistanceFade.Editor
         internal int Mode;
         internal float Fresnel;
         internal bool FresnelClamped;
+        internal readonly HashSet<Material> ExcludedMaterials = new HashSet<Material>();
     }
 
     internal sealed class SettingsException : Exception
@@ -80,13 +82,17 @@ namespace Camellian.DistanceFade.Editor
             Check(Overrides.RimColor, Finite(s.rimColor), "リム色");
             Check(Overrides.Fresnel, Finite(s.rimFresnelPower), "フレネル指数");
             var fresnel = (mask & Overrides.Fresnel) != 0 ? Mathf.Clamp(s.rimFresnelPower, 0.01f, 50) : s.rimFresnelPower;
-            return new SettingsSnapshot
+            var snapshot = new SettingsSnapshot
             {
                 Mask = mask, Strict = s.strictLilToonCheck, Color = s.fadeColor, RimColor = s.rimColor,
                 Vector = new Vector4(s.startDistance, s.endDistance, s.strength, s.backfaceShadow ? 1 : 0),
                 Mode = s.mode, Fresnel = fresnel,
                 FresnelClamped = (mask & Overrides.Fresnel) != 0 && fresnel != s.rimFresnelPower
             };
+            if (s.excludedMaterials != null)
+                foreach (var material in s.excludedMaterials)
+                    if (material != null) snapshot.ExcludedMaterials.Add(material);
+            return snapshot;
         }
     }
 }

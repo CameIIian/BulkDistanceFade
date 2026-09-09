@@ -1,9 +1,10 @@
-# DistanceFade
+# BulkDistanceFade
 
 lilToonの距離フェードをアバター全体へ非破壊で設定するNDMFプラグインです。
 
 - [導入・使い方](Packages/com.camellian.liltoon-distance-fade/README.md)
 - [仕様・設計書](docs/lilToon_DistanceFade_Bulk_Setter_Spec.md)
+- [マテリアル除外機能の設計書](docs/Material_Exclusion_Spec.md)
 - [Poiyomi・ShaderCore＋NonToonへの拡張仕様](docs/MultiShader_DistanceFade_Extension_Spec.md)
 - [実装・検証記録](docs/Implementation_Validation.md)
 - [GitHub Public公開前レビュー](docs/Public_Release_Review.md)

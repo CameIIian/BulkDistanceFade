@@ -37,6 +37,9 @@ namespace Camellian.DistanceFade.Editor
             EditorGUILayout.LabelField("配置先", setting.gameObject.name);
             EditorGUILayout.LabelField("対象範囲", "アバター全体（非アクティブを含む）");
             EditorGUILayout.PropertyField(serializedObject.FindProperty("strictLilToonCheck"), new GUIContent("Strict lilToon Check"));
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("excludedMaterials"), new GUIContent("除外マテリアル"), true);
+            EditorGUILayout.HelpBox("指定したMaterialを使うすべてのスロットを除外します。未設定・重複要素は無視します。" +
+                "他ツールによる置換後の除外は、NDMFに置換元が登録されている場合に引き継がれます。", MessageType.Info);
             EditorGUILayout.Space();
             EditorGUILayout.LabelField("距離フェード", EditorStyles.boldLabel);
             Field("overrideFadeColor", "fadeColor", "フェード色");
@@ -62,6 +65,7 @@ namespace Camellian.DistanceFade.Editor
             if (summary != null)
             {
                 EditorGUILayout.LabelField($"編集時集計: 対象Renderer {summary.TargetRenderers} / 対象Material {summary.TargetMaterials}");
+                EditorGUILayout.LabelField($"手動除外: Material {summary.ExcludedMaterials} / Slot {summary.ExcludedSlots}");
                 if (summary.Missing.Count > 0)
                     EditorGUILayout.HelpBox($"{summary.Missing.Count} Materialで適用項目の一部が非対応です。", MessageType.Warning);
             }
