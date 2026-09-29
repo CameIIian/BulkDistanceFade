@@ -1,0 +1,61 @@
+{
+  "name": "lazyFade",
+  "author": "camellian",
+  "id": "io.github.cameiiian.lazyfade",
+  "url": "https://cameIIian.github.io/lazyFade/index.json",
+  "packages": {
+    "com.camellian.lazyfade.liltoon": {
+      "versions": {
+        "0.2.0": {
+          "name": "com.camellian.lazyfade.liltoon",
+          "displayName": "lazyFade - lilToon",
+          "version": "0.2.0",
+          "unity": "2022.3",
+          "description": "Non-destructive avatar-wide lilToon distance fade settings for NDMF.",
+          "author": {
+            "name": "camellian",
+            "email": "90742148+CameIIian@users.noreply.github.com"
+          },
+          "license": "MIT",
+          "vpmDependencies": {
+            "com.vrchat.avatars": ">=3.10.3 <4.0.0",
+            "nadena.dev.ndmf": ">=1.13.1 <2.0.0",
+            "jp.lilxyzw.liltoon": ">=2.3.2 <3.0.0"
+          },
+          "url": "https://github.com/cameIIian/lazyFade/releases/download/v0.2.0/lazyFade-lilToon-0.2.0.zip",
+          "documentationUrl": "https://cameIIian.github.io/lazyFade/",
+          "changelogUrl": "https://github.com/cameIIian/lazyFade/releases/tag/v0.2.0",
+          "repo": "https://cameIIian.github.io/lazyFade/index.json",
+          "zipSHA256": "7adabaac01c8094b67b66f4dfa0c4891060b17865fce27071465e78c79f2b968"
+        }
+      }
+    },
+    "com.camellian.lazyfade.nontoon": {
+      "versions": {
+        "0.2.0": {
+          "name": "com.camellian.lazyfade.nontoon",
+          "displayName": "lazyFade - NonToon",
+          "version": "0.2.0",
+          "unity": "2022.3",
+          "description": "Non-destructive NonToon distance fade settings for NDMF. Separate from the lilToon component.",
+          "author": {
+            "name": "camellian",
+            "email": "90742148+CameIIian@users.noreply.github.com"
+          },
+          "license": "MIT",
+          "vpmDependencies": {
+            "com.vrchat.avatars": ">=3.10.3 <4.0.0",
+            "nadena.dev.ndmf": ">=1.13.1 <2.0.0",
+            "jp.lilxyzw.shadercore": "0.1.11",
+            "jp.lilxyzw.nontoon": "0.1.3"
+          },
+          "url": "https://github.com/cameIIian/lazyFade/releases/download/v0.2.0/lazyFade-NonToon-0.2.0.zip",
+          "documentationUrl": "https://cameIIian.github.io/lazyFade/",
+          "changelogUrl": "https://github.com/cameIIian/lazyFade/releases/tag/v0.2.0",
+          "repo": "https://cameIIian.github.io/lazyFade/index.json",
+          "zipSHA256": "78c260139cf7ad15c8463cd8ac84415f267807bfc64ba85c7eb65779198068df"
+        }
+      }
+    }
+  }
+}
