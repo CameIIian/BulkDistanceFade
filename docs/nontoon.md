@@ -5,7 +5,7 @@ title: "NonToon版の使い方"
 
 # lazyFade - NonToon
 
-[導入](installation.html)後、VRC Avatar Descriptorと同じGameObjectへ **lazyFade → lazyFade NonToon** を追加します。ShaderCore 0.1.11以上、NonToon 0.1.3以上のPackages形式を対象にしています。
+[導入](installation.md)後、VRC Avatar Descriptorと同じGameObjectへ **lazyFade → lazyFade NonToon** を追加します。ShaderCore 0.1.11以上、NonToon 0.1.3以上のPackages形式を対象にしています。
 
 ## 設定
 

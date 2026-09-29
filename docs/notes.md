@@ -4,7 +4,7 @@ title: "注意事項"
 description: "距離フェード一括適用の範囲と制限。"
 ---
 
-[ホーム](index.html) · [導入](installation.html) · [使い方](usage.html) · [設定項目](settings.html) · [対応環境](environment.html) · [注意事項](notes.html) · [トラブルシューティング](troubleshooting.html) · [Build / Test](development.html)
+[技術文書の目次](README.md) · [利用者向けガイド](https://cameiiian.github.io/lazyFade/)
 
 ---
 

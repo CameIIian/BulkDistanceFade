@@ -1,32 +1,48 @@
 ---
 layout: default
-title: "lazyFade"
-description: "VRChatアバターのlilToon／NonToon距離フェードを非破壊で一括設定"
+title: lazyFade
+description: VRChatアバターの距離フェードをまとめて設定するUnity Editor拡張
 ---
 
-# index.md
+VRChatアバターの距離フェードを、NDMFビルド時の成果物にだけ設定。
 
-![](./img/logo.png)
+## 導入
 
-VRChatアバターの距離フェードを、NDMFビルド時にまとめて設定。
-元マテリアルを変更せず、ビルド用の複製に適用。
+Unity 2022.3のアバタープロジェクトで、使用するShaderに合った版を追加すること。
+共通でSDK Avatars >= 3.10.3, NDMF >= 1.13.1が必要。
+
+| shader | versions |
+| --- | --- |
+| lilToon | lilToon >= 2.3.2 |
+| NonToon | ShaderCore >= 0.1.11, NonToon >= 0.1.3以上 |
+
+
+1. プロジェクトをバックアップ、依存関係をVPMで登録：[MA](https://modular-avatar.nadena.dev/ja/docs/intro)・[liltoon, nontoon, etc](https://lilxyzw.github.io/vpm-repos/vpm.json)。
+2. VCC / ALCOM 等の **Settings → Packages → Add Repository** に、次のURLを登録。
+
+   ```text
+   https://cameiiian.github.io/lazyFade/index.json
+   ```
+
+3. **Manage Project** から **lazyFade - lilToon** または **lazyFade - NonToon** を追加し、Unityを開く。
+
+<p class="action-row"><a class="button" href="vcc://vpm/addRepo?url=https%3A%2F%2Fcameiiian.github.io%2FlazyFade%2Findex.json">VCC / ALCOM等にリポジトリを追加</a></p>
 
 ## 使い方
 
-1. Hierarchyで、**VRC Avatar Descriptorと同じアバタールートGameObject**を選択。
-2. `lazyFade → lazyFade XXX` を1個追加。
+1. Hierarchyでアバターのルートを選び、**Add Component → lazyFade → lazyFade lilToon / lazyFade NonToon** を追加。配置先はVRC Avatar Descriptorと同じGameObject。1個ずつ併用可能。
+2. 変更したい項目のみ左のチェックをONにして、値を設定。
+3. 必要に応じて「除外マテリアル」を指定。必要であれば「再集計」から対象やエラーを確認。
+4. VRC向けにアップロード、及びGestureManager等のPreviewModeに入ると自動で適用。
 
-## トラブルシューティング
+## 困ったとき
 
-| 症状・表示 | 確認・対処 |
+| 症状 | 確認すること |
 | --- | --- |
-| 他ツールの処理後に除外が効かない | Materialが別参照へ置換され、NDMFへ起源が登録されていない可能性があります。同名かどうかだけでは追跡しません。 |
-| E001：配置エラー | VRC Avatar Descriptorと同じGameObjectへコンポーネントを配置します。子への配置は不可です。 |
-| E002：重複エラー | 非アクティブ・無効コンポーネントも含め、アバター全体で設定を1個にします。 |
+| コンポーネントが追加できない | 依存パッケージを導入し、Consoleのコンパイルエラーを解消する。 |
+| ビルドしても変化しない | 処理が有効か、変更する項目のチェックがONか、対象が除外されていないかを確認すること。 |
+| 配置・重複エラー | 上の手順1の配置先と個数を確認すること。無効なコンポーネントも個数に含まれる。 |
 
-| ガイド | 内容 |
-| --- | --- |
-| [導入](installation.html) | VPM・unitypackage・必要な依存 |
-| [lilToonの使い方](usage.html)／[設定](settings.html) | 操作、初期値、上書き、集計 |
-| [NonToonの使い方](nontoon.html) | 3項目の設定とモジュール要件 |
-| [トラブルシューティング](troubleshooting.html) | エラーと対処 |
+解決しない場合は、使用バージョンとConsoleのエラーを添えて[Issue](https://github.com/CameIIian/lazyFade/issues)まで。
+
+lilToon, NonToon公式の拡張ではありません。設定の詳細や検証範囲、開発手順は[技術文書の目次](https://github.com/CameIIian/lazyFade/blob/main/docs/README.md)から確認できます。

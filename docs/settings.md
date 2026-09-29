@@ -4,7 +4,7 @@ title: "設定項目"
 description: "Inspectorの全操作項目、初期値、除外と集計の説明。"
 ---
 
-[ホーム](index.html) · [導入](installation.html) · [使い方](usage.html) · [設定項目](settings.html) · [対応環境](environment.html) · [注意事項](notes.html) · [トラブルシューティング](troubleshooting.html) · [Build / Test](development.html)
+[技術文書の目次](README.md) · [利用者向けガイド](https://cameiiian.github.io/lazyFade/)
 
 ---
 
@@ -158,7 +158,7 @@ description: "Inspectorの全操作項目、初期値、除外と集計の説明
 | 設定または構成が変更された旨の案内 | 集計が古い可能性を示します。設定変更やUndo／Redoなどの後に更新ボタンを押してください。 |
 | 非対応項目の警告 | 適用ONの項目に必要なPropertyがないMaterialの数を示します。詳細はビルド時の警告でも確認できます。 |
 | 処理無効・強度0の案内 | 全体処理がOFF、または強度0の適用がONであることを知らせます。 |
-| 設定エラー | 配置・重複・入力値の問題を表示します。[トラブルシューティング](troubleshooting.html)に従って修正してください。 |
+| 設定エラー | 配置・重複・入力値の問題を表示します。[トラブルシューティング](troubleshooting.md)に従って修正してください。 |
 
 コンポーネント無効時は集計が0になります。全項目OFFでは除外より「全項目OFF」の判定が優先されるため、除外件数も0です。入力エラーで再集計できない場合は件数が表示されません。再集計前の値が残っている場合は、エラーを直して更新してください。
 

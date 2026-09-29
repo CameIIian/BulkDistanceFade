@@ -4,7 +4,7 @@ title: "Build / Test"
 description: "アバタービルド、自動テスト、開発時の編集箇所。"
 ---
 
-[ホーム](index.html) · [導入](installation.html) · [使い方](usage.html) · [設定項目](settings.html) · [対応環境](environment.html) · [注意事項](notes.html) · [トラブルシューティング](troubleshooting.html) · [Build / Test](development.html)
+[技術文書の目次](README.md) · [利用者向けガイド](https://cameiiian.github.io/lazyFade/)
 
 ---
 
@@ -90,7 +90,7 @@ Unity Editorを実行できるライセンス環境が必要です。Inspector�
 
 保存済み設定との互換性を保つには、既存フィールド名を変更する際に `FormerlySerializedAs` 等の移行対応が必要です。設定を変更した場合は、該当する回帰テストを実行してください。
 
-ドキュメントの公開手順は[GitHub Pagesの公開・更新](publishing.html)を参照してください。
+ドキュメントの公開手順は[GitHub Pagesの公開・更新](publishing.md)を参照してください。
 
 ### 配布処理のテスト
 

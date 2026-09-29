@@ -42,7 +42,7 @@ title: "VPM・GitHub Releaseの公開手順"
 
    GitHubが自動生成するSource code (zip)はVPM用ZIPではありません。ファイル名・タグを変えると一覧のURLと一致しなくなります。
 5. GitHubの **Settings → Pages → Deploy from a branch → main /docs** を選択します。公開後、生成コマンドが表示した`https://YOUR-ACCOUNT.github.io/lazyFade/index.json`を開き、JSONと両ZIPのダウンロードを確認します。`OWNER.github.io`形式のリポジトリではパス部分を自動省略します。
-6. VCCの **Settings → Packages → Add Repository** にそのindex.json URLを登録します。依存リポジトリも[導入ガイド](installation.html)に従って追加し、バックアップ済みAvatarプロジェクトで導入・ビルドしてください。
+6. VCCの **Settings → Packages → Add Repository** にそのindex.json URLを登録します。依存リポジトリも[導入ガイド](installation.md)に従って追加し、バックアップ済みAvatarプロジェクトで導入・ビルドしてください。
 
 これで**URLから追加できるCommunity Repository**になります。VRChatのCurated登録・公式審査への申請とは別です。
 
@@ -67,7 +67,7 @@ title: "VPM・GitHub Releaseの公開手順"
 ## 次回更新
 
 1. 更新する版のpackage.jsonを新バージョンにし、CHANGELOGと`release/<version>.md`を更新します。各版は個別に更新できます。
-2. [開発手順](development.html)のUnityテスト、安全テスト、更新対象のunitypackageの作成を行います。NonToonのみなら`Build-UnityPackage.ps1 -Edition NonToon`を使用します。
+2. [開発手順](development.md)のUnityテスト、安全テスト、更新対象のunitypackageの作成を行います。NonToonのみなら`Build-UnityPackage.ps1 -Edition NonToon`を使用します。
 3. 同じ公開情報でBuild-VpmRepository.ps1を実行します。NonToonのみの更新には`-Edition NonToon`を指定します。省略時は両版を処理します。
 4. 新版Releaseを先に公開し、ZIPを取得できることを確認してから更新一覧をpushします。過去Releaseを残します。
 
@@ -79,6 +79,6 @@ title: "VPM・GitHub Releaseの公開手順"
 | ZIPが404 | Releaseが公開済みか、タグがv付きか、ファイル名が一致するか |
 | 依存解決失敗 | NDMF・lilxyzwのリポジトリ登録と対応版の存在 |
 | 同版の内容不一致 | 公開済みなら版を上げる。未公開の試作なら既存出力・一覧を保管して再生成 |
-| class／assembly重複 | [移行手順](migration.html)で旧新・Assets／Packagesの重複を解消 |
+| class／assembly重複 | [移行手順](migration.md)で旧新・Assets／Packagesの重複を解消 |
 
 仕様：[VRChat VPM Packages](https://vcc.docs.vrchat.com/vpm/packages/)、[VPM Repos](https://vcc.docs.vrchat.com/vpm/repos/)、[独自一覧の公開](https://vcc.docs.vrchat.com/guides/create-listing/)、[Pages公開元設定](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site)。

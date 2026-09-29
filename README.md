@@ -20,6 +20,8 @@ https://cameiiian.github.io/lazyFade/index.json
 Add Component → lazyFade → lazyFade XXX
 ```
 
+導入・操作は[利用者向けガイド](https://cameiiian.github.io/lazyFade/)、詳しい設定や開発情報は[技術文書の目次](docs/README.md)を参照してください。
+
 ## 免責
 liltoon, shadercore公式の機能で無いため、アップデートによって問題が発生する場合があります。\
 問題があればissueページ及び各種連絡先までどうぞ。

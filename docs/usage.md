@@ -4,7 +4,7 @@ title: "使い方"
 description: "コンポーネントの追加と距離フェードの適用手順。"
 ---
 
-[ホーム](index.html) · [導入](installation.html) · [使い方](usage.html) · [設定項目](settings.html) · [対応環境](environment.html) · [注意事項](notes.html) · [トラブルシューティング](troubleshooting.html) · [Build / Test](development.html)
+[技術文書の目次](README.md) · [利用者向けガイド](https://cameiiian.github.io/lazyFade/)
 
 ---
 
@@ -16,10 +16,10 @@ description: "コンポーネントの追加と距離フェードの適用手順
 4. 各項目の左端のチェックをONにして、値を入力します。既存値を残したい項目は左端のチェックをOFFにします。
 5. 必要に応じて「除外マテリアル」のリストを開き、処理したくないMaterialを登録します。
 6. 必要に応じて「再集計」を押し、対象件数・除外件数とエラー表示を確認します。この操作はビルド時の適用に必須ではありません。
-7. NDMFが実行されるアバタービルド、またはNDMFによるPlay Mode処理で結果を確認します。実アップロード・Play Modeの手動検証状況は[対応環境](environment.html)を参照してください。
+7. NDMFが実行されるアバタービルド、またはNDMFによるPlay Mode処理で結果を確認します。実アップロード・Play Modeの手動検証状況は[対応環境](environment.md)を参照してください。
 
 **Inspectorの編集や「再集計」だけでは、Scene内のMaterialの見た目は変わりません。** 本ツールの適用タイミングはNDMFビルド処理です。手動で元Materialへ設定を焼き込むボタンはありません。
 
 設定コンポーネントは1アバターにつき1個です。子オブジェクトに取り付けたり、別の子へ追加して設定を分けたりすることはできません。処理後のビルド出力からは設定コンポーネントを除去します。
 
-各項目の入力方法と初期値は[設定項目](settings.html)を参照してください。
+各項目の入力方法と初期値は[設定項目](settings.md)を参照してください。

@@ -2,7 +2,9 @@ title: lazyFade
 description: VRChatアバターのlilToon／NonToon距離フェードを非破壊で一括設定するUnity Editor拡張
 lang: ja
 timezone: Asia/Tokyo
-theme: jekyll-theme-cayman
+url: https://cameiiian.github.io
+baseurl: /lazyFade
+repository: CameIIian/lazyFade
 markdown: kramdown
 show_downloads: false
 exclude:
@@ -10,3 +12,16 @@ exclude:
   - Gemfile.lock
   - vendor
   - .bundle
+  - README.md
+  - development.md
+  - environment.md
+  - installation.md
+  - license.md
+  - migration.md
+  - nontoon.md
+  - notes.md
+  - publishing.md
+  - security.md
+  - settings.md
+  - troubleshooting.md
+  - usage.md
