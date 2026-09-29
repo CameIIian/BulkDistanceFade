@@ -38,10 +38,10 @@ namespace Camellian.NonToonDistanceFade.Editor
             var package = PackageInfo.FindForAssetPath(path);
             var core = PackageInfo.FindForAssembly(typeof(SCModule).Assembly);
             if (!path.EndsWith(".scshader", StringComparison.OrdinalIgnoreCase) ||
-                package == null || package.name != "jp.lilxyzw.nontoon" || package.version != "0.1.3" ||
-                core == null || core.name != "jp.lilxyzw.shadercore" || core.version != "0.1.11")
+                package == null || package.name != "jp.lilxyzw.nontoon" || !IsSupportedVersion(package.version, new Version(0, 1, 3)) ||
+                core == null || core.name != "jp.lilxyzw.shadercore" || !IsSupportedVersion(core.version, new Version(0, 1, 11)))
             {
-                reason = "対応版はPackages導入のNonToon 0.1.3 / ShaderCore 0.1.11です。";
+                reason = "対応版はPackages導入のNonToon 0.1.3以上 / ShaderCore 0.1.11以上（正式版）です。";
                 return null;
             }
             var modulePath = AssetDatabase.GUIDToAssetPath(ModuleGuid);
@@ -53,6 +53,16 @@ namespace Camellian.NonToonDistanceFade.Editor
             var module = SCModule.FromFile(Path.Combine(package.resolvedPath, modulePath.Substring(package.assetPath.Length + 1)));
             if (module.uniqueID != ModuleId) { reason = "Distance FadeモジュールIDが一致しません。"; return null; }
             return ResolveProperties(shader, module, out reason);
+        }
+
+        // Match the stable releases allowed by the VPM dependency ranges.
+        internal static bool IsSupportedVersion(string value, Version minimum)
+        {
+            if (string.IsNullOrEmpty(value)) return false;
+            var match = System.Text.RegularExpressions.Regex.Match(value,
+                @"\A(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?\z");
+            return match.Success && Version.TryParse(string.Join(".",
+                match.Groups[1].Value, match.Groups[2].Value, match.Groups[3].Value), out var version) && version >= minimum;
         }
 
         internal static NonToonProperties ResolveProperties(Shader shader, SCModule module, out string reason)

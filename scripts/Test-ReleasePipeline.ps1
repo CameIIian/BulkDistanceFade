@@ -8,6 +8,11 @@ New-Item -ItemType Directory -Path $fixture | Out-Null
 foreach ($name in @('Packages','scripts','docs','design','release','README.md','LICENSE','.gitignore','.gitattributes')) {
     Copy-Item -LiteralPath (Join-Path $workspace $name) -Destination $fixture -Recurse
 }
+# Keep the existing two-edition regression fixture on one version.
+$nonToonManifest = Join-Path $fixture 'Packages/com.camellian.lazyfade.nontoon/package.json'
+$fixtureInfo = Get-Content -LiteralPath $nonToonManifest -Raw | ConvertFrom-Json
+$fixtureInfo.version = (Get-Content -LiteralPath (Join-Path $fixture 'Packages/com.camellian.lazyfade.liltoon/package.json') -Raw | ConvertFrom-Json).version
+$fixtureInfo | ConvertTo-Json -Depth 30 | Set-Content -LiteralPath $nonToonManifest
 # Tests are offline and isolated; never put sample identity in the real listing.
 $listingPath = Join-Path $fixture 'docs/index.json'
 if (Test-Path -LiteralPath $listingPath) {
@@ -72,6 +77,16 @@ foreach ($zip in Get-ChildItem -LiteralPath $output -Filter '*.zip') {
 }
 $listing = Get-Content -LiteralPath $listingPath -Raw | ConvertFrom-Json -AsHashtable
 Assert-True ($listing.packages[$id].versions.ContainsKey('0.0.1')) 'Lost previous version.'
+$oldNonToon = $listing.packages['com.camellian.lazyfade.nontoon'].versions[$version] | ConvertTo-Json -Depth 30 -Compress
+$oldLilToon = $listing.packages[$id] | ConvertTo-Json -Depth 30 -Compress
+$fixtureInfo.version = '0.2.1'
+$fixtureInfo | ConvertTo-Json -Depth 30 | Set-Content -LiteralPath $nonToonManifest
+& $builder -Repository 'lazyfade-test/lazyFade' -PublicEmail 'release@example.com' -Edition NonToon | Out-Null
+$listing = Get-Content -LiteralPath $listingPath -Raw | ConvertFrom-Json -AsHashtable
+Assert-True (($listing.packages[$id] | ConvertTo-Json -Depth 30 -Compress) -ceq $oldLilToon) 'Single-edition release changed lilToon.'
+Assert-True (($listing.packages['com.camellian.lazyfade.nontoon'].versions[$version] | ConvertTo-Json -Depth 30 -Compress) -ceq $oldNonToon) 'Single-edition release changed previous NonToon.'
+Assert-True ($listing.packages['com.camellian.lazyfade.nontoon'].versions.ContainsKey('0.2.1')) 'Missing new NonToon release.'
+Assert-True (-not (Test-Path (Join-Path $fixture 'artifacts/0.2.1/lazyFade-lilToon-0.2.1.zip'))) 'Unexpected lilToon release.'
 Assert-Fails { & $builder -Repository 'different-owner/lazyFade' -PublicEmail 'release@example.com' } 'identity differs'
 Assert-Fails { & $builder -Repository 'lazyfade-test/lazyFade' -PublicEmail 'release@example.com' -ListingUrl 'http://example.com/index.json' } 'public HTTPS'
 $source = Join-Path $fixture 'Packages/com.camellian.lazyfade.liltoon/Runtime/LazyFadeLilToon.cs'

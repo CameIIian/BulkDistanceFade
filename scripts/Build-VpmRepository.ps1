@@ -2,7 +2,8 @@
 param(
     [Parameter(Mandatory)][ValidatePattern('^[A-Za-z0-9][A-Za-z0-9-]*/[A-Za-z0-9][A-Za-z0-9_.-]*$')][string]$Repository,
     [Parameter(Mandatory)][string]$PublicEmail,
-    [string]$ListingUrl
+    [string]$ListingUrl,
+    [ValidateSet('All','lilToon','NonToon')][string]$Edition = 'All'
 )
 $ErrorActionPreference = 'Stop'
 . (Join-Path $PSScriptRoot 'ReleaseCommon.ps1')
@@ -29,13 +30,13 @@ if (Test-Path -LiteralPath $listingPath) {
 }
 $pending = [Collections.Generic.List[object]]::new()
 $versions = @()
-foreach ($edition in @('lilToon','NonToon')) {
-    $source = Join-Path $workspace ('Packages/com.camellian.lazyfade.' + $edition.ToLowerInvariant())
+foreach ($variant in $(if ($Edition -eq 'All') { @('lilToon','NonToon') } else { @($Edition) })) {
+    $source = Join-Path $workspace ('Packages/com.camellian.lazyfade.' + $variant.ToLowerInvariant())
     $manifest = Get-Content -LiteralPath (Join-Path $source 'package.json') -Raw | ConvertFrom-Json -AsHashtable
     $version = $manifest.version
     if ($version -notmatch '^\d+\.\d+\.\d+$') { throw 'Release version must be a stable SemVer.' }
     $versions += $version
-    $filename = "lazyFade-$edition-$version.zip"
+    $filename = "lazyFade-$variant-$version.zip"
     $manifest.author.email = $PublicEmail
     $manifest.url = "https://github.com/$Repository/releases/download/v$version/$filename"
     $manifest.documentationUrl = $ListingUrl.Substring(0, $ListingUrl.Length - 'index.json'.Length)
@@ -72,18 +73,19 @@ foreach ($edition in @('lilToon','NonToon')) {
     $entries[$version] = $manifest
     $pending.Add(@{ Path = $output; Bytes = $bytes })
 }
-if (@($versions | Select-Object -Unique).Count -ne 1) { throw 'Both editions must share a release version.' }
 foreach ($item in $pending) {
     $directory = Split-Path -Parent $item.Path
     New-Item -ItemType Directory -Force -Path $directory | Out-Null
     if (-not (Test-Path -LiteralPath $item.Path)) { [IO.File]::WriteAllBytes($item.Path, $item.Bytes) }
 }
 [IO.File]::WriteAllText($listingPath, ($listing | ConvertTo-Json -Depth 40) + "`n", [Text.UTF8Encoding]::new($false))
-$release = Join-Path $workspace ('artifacts/' + $versions[0])
-Write-ReleaseChecksums $release
-Copy-Item -LiteralPath (Join-Path $workspace ('release/' + $versions[0] + '.md')) -Destination (Join-Path $release 'RELEASE_NOTES.md')
+foreach ($releaseVersion in $versions | Select-Object -Unique) {
+    $release = Join-Path $workspace ('artifacts/' + $releaseVersion)
+    Write-ReleaseChecksums $release
+    Copy-Item -LiteralPath (Join-Path $workspace ('release/' + $releaseVersion + '.md')) -Destination (Join-Path $release 'RELEASE_NOTES.md')
+}
 & (Join-Path $PSScriptRoot 'Test-PublicationSafety.ps1')
 Write-Output "Prepared $($pending.Count) VPM ZIPs and docs/index.json. No upload performed."
-Write-Output "Publish tag: v$($versions[0])"
+Write-Output "Publish versions: $($versions -join ', ')"
 Write-Output "VCC repository URL: $ListingUrl"
 Write-Output ('Add to VCC: vcc://vpm/addRepo?url=' + [Uri]::EscapeDataString($ListingUrl))

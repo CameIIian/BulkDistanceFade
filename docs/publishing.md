@@ -66,9 +66,9 @@ title: "VPM・GitHub Releaseの公開手順"
 
 ## 次回更新
 
-1. 両版のpackage.jsonを同じ新バージョンにし、CHANGELOGと`release/<version>.md`を更新します。
-2. [開発手順](development.html)のUnityテスト、安全テスト、両unitypackageの作成を行います。
-3. 同じ公開情報でBuild-VpmRepository.ps1を実行します。
+1. 更新する版のpackage.jsonを新バージョンにし、CHANGELOGと`release/<version>.md`を更新します。各版は個別に更新できます。
+2. [開発手順](development.html)のUnityテスト、安全テスト、更新対象のunitypackageの作成を行います。NonToonのみなら`Build-UnityPackage.ps1 -Edition NonToon`を使用します。
+3. 同じ公開情報でBuild-VpmRepository.ps1を実行します。NonToonのみの更新には`-Edition NonToon`を指定します。省略時は両版を処理します。
 4. 新版Releaseを先に公開し、ZIPを取得できることを確認してから更新一覧をpushします。過去Releaseを残します。
 
 ## 失敗時

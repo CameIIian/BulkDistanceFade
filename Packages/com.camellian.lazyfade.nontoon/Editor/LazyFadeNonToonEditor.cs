@@ -90,7 +90,7 @@ namespace Camellian.NonToonDistanceFade.Editor
             }
             if (!setting.enabled) EditorGUILayout.HelpBox("処理は無効です。設定値は保持されます。", MessageType.Info);
             if (stale) EditorGUILayout.HelpBox("設定や構成が変更されました。再集計で件数を確認できます。", MessageType.Info);
-            EditorGUILayout.HelpBox("集計は任意です。NDMFビルド時は最新の設定を使用します。NonToon 0.1.3 / ShaderCore 0.1.11の公式Shaderが対象です。Distance FadeモジュールはShader側で組み込んでください。", MessageType.Info);
+            EditorGUILayout.HelpBox("集計は任意です。NDMFビルド時は最新の設定を使用します。NonToon 0.1.3以上 / ShaderCore 0.1.11以上の公式Shaderが対象です。Distance FadeモジュールはShader側で組み込んでください。", MessageType.Info);
         }
         private void Field(string toggle, string value, string label)
         {

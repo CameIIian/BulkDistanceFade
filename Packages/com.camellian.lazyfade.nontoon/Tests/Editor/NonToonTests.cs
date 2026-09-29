@@ -14,6 +14,31 @@ using Object = UnityEngine.Object;
 
 namespace Camellian.NonToonDistanceFade.Tests
 {
+    public sealed class NonToonVersionTests
+    {
+        [TestCase("0.1.3", "0.1.3", true)]
+        [TestCase("0.1.4", "0.1.3", true)]
+        [TestCase("0.1.10", "0.1.3", true)]
+        [TestCase("0.2.0", "0.1.3", true)]
+        [TestCase("1.0.0", "0.1.3", true)]
+        [TestCase("0.1.2", "0.1.3", false)]
+        [TestCase("0.1.11", "0.1.11", true)]
+        [TestCase("0.1.12", "0.1.11", true)]
+        [TestCase("0.1.9", "0.1.11", false)]
+        [TestCase("0.1.3+build.1", "0.1.3", true)]
+        [TestCase("0.1.3-beta.1", "0.1.3", false)]
+        [TestCase("0.2.0-beta.1", "0.1.3", false)]
+        [TestCase("invalid", "0.1.3", false)]
+        [TestCase("0.1", "0.1.3", false)]
+        [TestCase("0.1.3.0", "0.1.3", false)]
+        [TestCase("", "0.1.3", false)]
+        [TestCase(null, "0.1.3", false)]
+        public void AcceptsStableVersionsAtOrAboveMinimum(string value, string minimum, bool expected)
+        {
+            Assert.That(NonToonShader.IsSupportedVersion(value, new Version(minimum)), Is.EqualTo(expected));
+        }
+    }
+
     internal sealed class InspectorWindow : EditorWindow
     {
         internal UnityEditor.Editor Inspector;

@@ -12,7 +12,7 @@ Unity 2022.3のVRChat Avatarプロジェクトをバックアップしてから�
 | 版 | 共通の依存 | Shader |
 | --- | --- | --- |
 | lilToon | SDK Avatars 3.10.3以上・4未満、NDMF 1.13.1以上・2未満 | lilToon 2.3.2以上・3未満 |
-| NonToon | 同上 | ShaderCore **0.1.11**、NonToon **0.1.3** |
+| NonToon | 同上 | ShaderCore **0.1.11以上**、NonToon **0.1.3以上** |
 
 これらはmanifestの依存範囲です。全範囲を実機検証した意味ではありません。確認済み環境は[対応環境](environment.html)を参照してください。NonToon版はShaderCore／NonToonをPackages形式で導入します。
 
@@ -28,7 +28,7 @@ Unity 2022.3のVRChat Avatarプロジェクトをバックアップしてから�
 ## Unitypackage
 
 1. 依存を先に導入します。
-2. Releaseから使う版の`lazyFade-lilToon-0.2.0.unitypackage`または`lazyFade-NonToon-0.2.0.unitypackage`を入手します。
+2. Releaseから使う版の`lazyFade-lilToon-0.2.0.unitypackage`または`lazyFade-NonToon-0.2.1.unitypackage`を入手します。
 3. UnityのAssets → Import Package → Custom Packageで全項目インポートします。導入先はAssets/lazyFade-lilToonまたはAssets/lazyFade-NonToonです。
 
 同じ版のAssets版とVPM／Packages版を同時に導入しないでください。GUIDとassemblyが重複します。lilToon版とNonToon版の併設は可能です。
