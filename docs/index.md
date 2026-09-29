@@ -9,6 +9,7 @@ VRChatアバターの距離フェードを、NDMFビルド時の成果物にだ�
 ## 導入
 
 Unity 2022.3のアバタープロジェクトで、使用するShaderに合った版を追加すること。
+
 共通でSDK Avatars >= 3.10.3, NDMF >= 1.13.1が必要。
 
 | shader | versions |
