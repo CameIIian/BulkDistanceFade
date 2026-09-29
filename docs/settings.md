@@ -35,7 +35,7 @@ description: "Inspectorの全操作項目、初期値、除外と集計の説明
 
 各項目の左端のチェック、処理全体の有効状態、除外マテリアル、裏面・モード・Strict設定はプリセットでは変更しません。チェックOFFの項目も入力値は上書きしますが、NDMFでは既存どおり適用対象外です。「初期色」は従来の初期色へ戻す操作で、選択したプリセットの色に戻す操作ではありません。
 
-現在の組み込みプリセットは **`warm`・`cold`・`none`** の3件です。次の値は `Editor/DistanceFadePresets.cs` の定義に対応します。色はRGBの16進表記とAlpha（0～1）で示します。
+現在の組み込みプリセットは **`warm`・`cold`・`none`** の3件です。次の値は `Editor/LazyFadeLilToonPresets.cs` の定義に対応します。色はRGBの16進表記とAlpha（0～1）で示します。
 
 | 名前 | 開始距離 | 終了距離 | フェード色 / Alpha | 強度 | リム色 / Alpha | リムライトの細さ |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -45,7 +45,7 @@ description: "Inspectorの全操作項目、初期値、除外と集計の説明
 
 `none`はコンポーネントを無効にする選択肢ではなく、6項目を上記の値へ変更します。強度の適用チェックがONなら、ビルド時に強度0を書き込みます。3件ともリム色のAlphaは0のため、その値を適用すると距離フェード用リム色の寄与はなくなります。
 
-プリセットの定義箇所は、パッケージ内の `Editor/DistanceFadePresets.cs` にある `BuiltIn` 配列です。各 `new DistanceFadePreset(...)` の次の7か所を編集してください。
+プリセットの定義箇所は、パッケージ内の `Editor/LazyFadeLilToonPresets.cs` にある `BuiltIn` 配列です。各 `new DistanceFadePreset(...)` の次の7か所を編集してください。
 
 | 定義名 | 設定内容 |
 | --- | --- |
@@ -78,7 +78,7 @@ description: "Inspectorの全操作項目、初期値、除外と集計の説明
 - **ON**：lilToon 2.3.2から抽出した52個の公開用Shader名との完全一致で候補を選びます。
 - **OFF**：上記に加え、実装の名前規則に一致するカスタムShaderも候補にします。例えば `Custom/lilToonVariant` は候補ですが、`NotlilToon` は候補にしません。
 
-名前一覧はOfficialShaders.cs（リポジトリ内の `Packages/com.camellian.liltoon-distance-fade/Editor/OfficialShaders.cs`）、カスタム名の判定規則はMaterialUtility.cs（リポジトリ内の `Packages/com.camellian.liltoon-distance-fade/Editor/MaterialUtility.cs`）にあります。OFFは全Shaderへの強制適用ではありません。どちらの設定でも、適用するPropertyがMaterialに存在するかを確認します。名前一致やPropertyの存在だけで、すべての派生Shaderの描画を保証するものではありません。
+名前一覧はOfficialShaders.cs（リポジトリ内の `Packages/com.camellian.lazyfade.liltoon/Editor/OfficialShaders.cs`）、カスタム名の判定規則はMaterialUtility.cs（リポジトリ内の `Packages/com.camellian.lazyfade.liltoon/Editor/MaterialUtility.cs`）にあります。OFFは全Shaderへの強制適用ではありません。どちらの設定でも、適用するPropertyがMaterialに存在するかを確認します。名前一致やPropertyの存在だけで、すべての派生Shaderの描画を保証するものではありません。
 
 ### 除外マテリアル
 

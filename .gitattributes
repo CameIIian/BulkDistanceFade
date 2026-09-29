@@ -1,0 +1,12 @@
+* text=auto
+*.cs text eol=lf
+*.meta text eol=lf
+*.asmdef text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+*.ps1 text eol=lf
+*.yml text eol=lf
+*.shader text eol=lf
+*.unitypackage binary
+*.zip binary
+*.docx binary

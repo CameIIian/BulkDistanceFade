@@ -1,0 +1,9 @@
+{
+  "name": "Camellian.NonToonDistanceFade.Tests.Editor",
+  "references": ["Camellian.NonToonDistanceFade.Runtime", "Camellian.NonToonDistanceFade.Editor", "jp.lilxyzw.shadercore.Core", "VRC.SDKBase", "VRC.SDK3A", "nadena.dev.ndmf"],
+  "includePlatforms": ["Editor"],
+  "optionalUnityReferences": ["TestAssemblies"],
+  "overrideReferences": true,
+  "precompiledReferences": ["nunit.framework.dll", "VRCSDK3A.dll", "VRCSDKBase.dll"],
+  "autoReferenced": false
+}

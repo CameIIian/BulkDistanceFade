@@ -1,0 +1,6 @@
+{
+  "name": "Camellian.NonToonDistanceFade.Editor",
+  "references": ["Camellian.NonToonDistanceFade.Runtime", "jp.lilxyzw.shadercore.Core", "nadena.dev.ndmf", "VRC.SDKBase", "VRC.SDK3A"],
+  "includePlatforms": ["Editor"],
+  "autoReferenced": true
+}

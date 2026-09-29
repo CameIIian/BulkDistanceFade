@@ -1,0 +1,17 @@
+{
+  "name": "com.camellian.lazyfade.nontoon",
+  "displayName": "lazyFade - NonToon",
+  "version": "0.2.0",
+  "unity": "2022.3",
+  "description": "Non-destructive NonToon distance fade settings for NDMF. Separate from the lilToon component.",
+  "author": {
+    "name": "camellian"
+  },
+  "license": "MIT",
+  "vpmDependencies": {
+    "com.vrchat.avatars": ">=3.10.3 <4.0.0",
+    "nadena.dev.ndmf": ">=1.13.1 <2.0.0",
+    "jp.lilxyzw.shadercore": "0.1.11",
+    "jp.lilxyzw.nontoon": "0.1.3"
+  }
+}

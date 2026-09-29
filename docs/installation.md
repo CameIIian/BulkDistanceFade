@@ -1,23 +1,40 @@
 ---
 layout: default
 title: "導入"
-description: "BulkDistanceFadeのインストール手順。"
 ---
 
-[ホーム](index.html) · [導入](installation.html) · [使い方](usage.html) · [設定項目](settings.html) · [対応環境](environment.html) · [注意事項](notes.html) · [トラブルシューティング](troubleshooting.html) · [Build / Test](development.html)
+# lazyFadeの導入
 
----
+Unity 2022.3のVRChat Avatarプロジェクトをバックアップしてから導入します。旧版が入っている場合は[移行手順](migration.html)を先に確認してください。
 
-# 導入
+## 依存パッケージ
 
-1. Unity 2022.3のVRChat Avatarプロジェクトを用意し、VRChat SDK Avatars・NDMF・lilToonを先に導入します。確認済みのバージョンは[対応環境](environment.html)を参照してください。
-2. 次のいずれかの方法で本パッケージを導入します。
-   - リポジトリの `Packages/com.camellian.liltoon-distance-fade` フォルダーを、導入先プロジェクトの同じ `Packages/com.camellian.liltoon-distance-fade` の位置へコピーします。
-   - UnityのPackage Managerで「Add package from disk」を選び、本パッケージの `package.json` を指定します。
-3. Unityのコンパイルが完了し、Consoleにコンパイルエラーがないことを確認します。
-4. Add Componentの `BulkDistanceFade → Distance Fade Bulk Setter` からコンポーネントを選択します。
+| 版 | 共通の依存 | Shader |
+| --- | --- | --- |
+| lilToon | SDK Avatars 3.10.3以上・4未満、NDMF 1.13.1以上・2未満 | lilToon 2.3.2以上・3未満 |
+| NonToon | 同上 | ShaderCore **0.1.11**、NonToon **0.1.3** |
 
-VPM依存情報は `package.json` に含まれますが、公開VPMリポジトリへの登録は行っていません。上記の手動導入では、VPM依存パッケージが自動導入されることを前提にせず、先に依存環境を用意してください。
+これらはmanifestの依存範囲です。全範囲を実機検証した意味ではありません。確認済み環境は[対応環境](environment.html)を参照してください。NonToon版はShaderCore／NonToonをPackages形式で導入します。
 
-導入が完了したら[使い方](usage.html)へ進んでください。
+## VPM（公開後）
 
+1. VCCのSettings → Packages → Add Repositoryへ、作者が公開したlazyFadeのindex.json URLを追加します。公開を行う方は[公開手順](publishing.html)でURLを生成してください。
+2. 依存の配布元リポジトリも登録します。NDMFは[Modular Avatarの公式導入案内](https://modular-avatar.nadena.dev/ja/docs/intro)からnadenaのリポジトリを登録できます。lilToon／ShaderCore／NonToonは[lilxyzwのVPMリポジトリ](https://lilxyzw.github.io/vpm-repos/vpm.json)を登録します。Modular Avatar本体はlazyFadeの必須依存ではありません。
+3. プロジェクトのManage Projectで **lazyFade - lilToon** または **lazyFade - NonToon** を追加します。
+4. Unityを開き、Consoleにコンパイルエラーがないことを確認します。
+
+依存リポジトリ未登録ではVPMが必要な版を解決できない場合があります。依存パッケージはlazyFadeのZIPへ同梱していません。
+
+## Unitypackage
+
+1. 依存を先に導入します。
+2. Releaseから使う版の`lazyFade-lilToon-0.2.0.unitypackage`または`lazyFade-NonToon-0.2.0.unitypackage`を入手します。
+3. UnityのAssets → Import Package → Custom Packageで全項目インポートします。導入先はAssets/lazyFade-lilToonまたはAssets/lazyFade-NonToonです。
+
+同じ版のAssets版とVPM／Packages版を同時に導入しないでください。GUIDとassemblyが重複します。lilToon版とNonToon版の併設は可能です。
+
+## ソースからの手動導入
+
+依存を導入済みのプロジェクトへ、対象の`Packages/com.camellian.lazyfade.liltoon`または`Packages/com.camellian.lazyfade.nontoon`フォルダーをコピーできます。Unity Package ManagerのAdd package from diskでpackage.jsonを指定する方法もあります。UnityのUPMはvpmDependenciesを自動解決する前提ではありません。
+
+VRC Avatar Descriptorと同じGameObjectへ **lazyFade → lazyFade lilToon / lazyFade NonToon** を追加します。[lilToonの使い方](usage.html)・[NonToonの使い方](nontoon.html)へ進んでください。

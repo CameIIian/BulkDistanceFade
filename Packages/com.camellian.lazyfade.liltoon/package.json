@@ -1,0 +1,16 @@
+{
+  "name": "com.camellian.lazyfade.liltoon",
+  "displayName": "lazyFade - lilToon",
+  "version": "0.2.0",
+  "unity": "2022.3",
+  "description": "Non-destructive avatar-wide lilToon distance fade settings for NDMF.",
+  "author": {
+    "name": "camellian"
+  },
+  "license": "MIT",
+  "vpmDependencies": {
+    "com.vrchat.avatars": ">=3.10.3 <4.0.0",
+    "nadena.dev.ndmf": ">=1.13.1 <2.0.0",
+    "jp.lilxyzw.liltoon": ">=2.3.2 <3.0.0"
+  }
+}

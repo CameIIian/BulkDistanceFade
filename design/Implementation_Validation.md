@@ -1,13 +1,13 @@
 # 実装・検証記録
 
-対象: `com.camellian.liltoon-distance-fade` 0.1.0  
+対象: `com.camellian.lazyfade.liltoon` 0.1.0  
 実装日: 2026-09-08
 
 ## 実装範囲
 
 仕様書に基づき、設定コンポーネント、専用Inspector、NDMFの早期検証・適用パス、非破壊Material複製、共有保持、診断、出力コンポーネント除去、Edit Modeテストを実装した。
 
-パッケージIDは仮の`com.example...`から`com.camellian.liltoon-distance-fade`へ変更した。配布用コード・メタデータは`Packages/com.camellian.liltoon-distance-fade`に格納している。VPMリポジトリへの公開は実施していない。
+パッケージIDは仮の`com.example...`から`com.camellian.lazyfade.liltoon`へ変更した。配布用コード・メタデータは`Packages/com.camellian.lazyfade.liltoon`に格納している。VPMリポジトリへの公開は実施していない。
 
 ## API照合・検証環境
 
@@ -29,7 +29,7 @@
 - ルート設定は`VRC.SDKBase.IEditorOnly`を実装し、NDMF適用後にも明示的に設定コンポーネントだけを除去する。
 - 生成Materialの登録には`BuildContext.AssetSaver.SaveAsset`を使用する。元Assetの保存APIは呼ばない。
 - NDMFの`IError`実装で対象オブジェクトへの参照を持たせる。設定不正は`ErrorSeverity.Error`、補正・非対応Propertyは`NonFatal`で報告する。早期検証失敗はビルド単位の状態にも記録し、後段の適用を抑止する。
-- 仕様書のモジュール案にある`ValidateSettingsPass`は、`DistanceFadePlugin`の早期検証コールバックと`SettingsValidator`へまとめた。
+- 仕様書のモジュール案にある`ValidateSettingsPass`は、`LazyFadeLilToonPlugin`の早期検証コールバックと`SettingsValidator`へまとめた。
 - TTT 1.0.1の`NDMFPlugin.cs`／`TTTPass.cs`を照合し、Optimizingでも適用処理があることを確認した。最終出力に設定するため、本ツールもOptimizing内のTTT後・AAO前へ移動した。設計書を1.1に改訂した。AAO側の主要処理もOptimizingにあることをソースで確認した。
 - フレネル指数のInspector Clampは値を編集したタイミングで行う。Inspectorを表示・集計しただけではシリアライズ済み値を書き換えない。ビルド時は設定スナップショット内で補正する。
 
@@ -126,7 +126,7 @@ UnityのEditorWindowに実際のカスタムInspectorを描画する回帰テス
 
 ## 組み込みプリセット（2026-09-09）
 
-`Editor/DistanceFadePresets.cs`の`BuiltIn`配列に、名前と6項目を変更できる仮プリセット3件を追加した。値は利用者が指定するため、3件とも現在の初期値を仮設定した。Runtimeコンポーネントの保存フィールドやGUIDは変更していない。
+`Editor/LazyFadeLilToonPresets.cs`の`BuiltIn`配列に、名前と6項目を変更できる仮プリセット3件を追加した。値は利用者が指定するため、3件とも現在の初期値を仮設定した。Runtimeコンポーネントの保存フィールドやGUIDは変更していない。
 
 「2. 基本設定」の先頭のプルダウンで選択すると、距離フェード4項目・リム2項目の保存値を即時上書きする。読み込みボタンは設けない。チェックOFFの項目も保存値は更新するが、チェック状態・除外・高度な設定・コンポーネントの有効状態は維持する。NDMFは既存の処理で更新済みの値を取り込むため、元Materialを編集時に書き換えない。
 
@@ -142,6 +142,28 @@ UnityのEditorWindowに実際のカスタムInspectorを描画する回帰テス
 
 変更後にUnity Edit Modeを再実行し、**61件合格／失敗0件／スキップ0件**を確認した。検証スクリプトの安全性テストはPowerShell 7.6.5とWindows PowerShell 5.1で各19件合格。公開候補73ファイルとDOCX内18 XMLの機密情報パターン検査、Git除外規則、JSON、メタデータ、文書リンクも再確認した。詳しい確認範囲と残る制限は[公開前レビュー](Public_Release_Review.md)に記載した。
 
+## Unitypackage作成・検証（2026-09-10）
+
+`scripts/Build-UnityPackage.ps1`で、0.1.0のUnitypackageを作成した。配布先は`Assets/BulkDistanceFade`とし、Runtime・Editor・LICENSE・CHANGELOG・Unitypackage用READMEと.metaだけを同梱する。SDK・NDMF・lilToon・Tests・VPM／UPMのmanifestは含めない。Packages版と同じScript／assemblyのGUIDを維持するため、両形式の二重導入は不可と案内した。
+
+Unity 2022.3.22f1の独立した一時プロジェクトでコンパイル・出力後、再インポートとコンパイル検証を別のUnity起動で実行した。最初の試行では非同期インポートの完了前に検証したため失敗し、作成スクリプトを修正した。最終実行は正常終了し、取り込み前後の**37ファイル（.metaを含む）のSHA256がすべて一致**した。
+
+最終成果物は`artifacts/0.1.0/BulkDistanceFade-0.1.0.unitypackage`、16,689バイト。SHA256は`ef08103af8e7f86c4c89a525c306a35505e0f1640b8cd681c7810dc975aa2c69`。アーカイブ内部の20アセット（C# 12ファイルを含む）について、許可した導入パスだけを含むこと、元GUIDとソース本文の一致を別途検証した。公開候補77ファイルとDOCX内18 XMLの秘密情報パターン検査は該当0件。パッケージ本体の処理は変更しておらず、Edit Mode 61件の直前の合格結果を維持する。
+
+日本語のリリース本文は[release/0.1.0.md](../release/0.1.0.md)、再作成手順は[release/README.md](../release/README.md)にある。成果物と同じフォルダーにリリース本文と`SHA256SUMS.txt`も用意した。Gitタグ作成とGitHubへの公開は行っていない。
+
+## NonToon用の別コンポーネント（2026-09-10）
+
+`com.camellian.lazyfade.nontoon`パッケージと`LazyFadeNonToon`を追加した。既存lilToon用のRuntime／EditorとGUIDは変更せず、同一アバタールートに各型1個を併設できる構成とした。元の統合コンポーネント案はユーザー指定により変更した。
+
+ShaderCore 0.1.11／NonToon 0.1.3の公式ソースを取得し、検証環境だけへコピーした。モジュールの公開パーサーを使ってProperty名を解決し、公式ShaderのGUID、版、実Property型、モジュール属性、定数化なしを確認する。距離Vectorのx/yだけを部分上書きし、独立した強度を設定する。元Shaderのモジュール追加や再生成は行わない。
+
+新しいInspector、名前と3値を編集するプリセット3件、独立した除外、起源追跡、読み取り専用集計、NDMF適用を実装した。初期チェックは全OFF。最終距離ペアは保持値も含めて検証する。
+
+`./scripts/Run-Tests.ps1 -IncludeNonToon`の最終実行は**88件合格／失敗0／スキップ0**（lilToon 61件、NonToon 27件）。Unity 2022.3.22f1、SDK 3.10.3、NDMF 1.13.1。2026-09-10 10:13:54～10:13:57 UTC。公式NonToon／NonToonFurの生成Shader、全8通りの部分上書き、共有・非アクティブ・除外・置換起源、入力不正、保存失敗、プリセット、Inspector展開、実NDMFでの両コンポーネント併設を検証した。初回のPackageInfo型名の競合は明示aliasで修正した。
+
+テストスクリプトへ追加assemblyの選択を追加し、Editor本体の終了を待つ方式にして子サービスの終了待ちを避けた。検証依存を準備する`Prepare-NonToonVerification.ps1`は既存コピーを上書きしない。従来のlilToon用Unitypackageは更新しておらず、NonToon用コードを含まない。両パッケージの45 GUIDに重複なし、公開候補114ファイルの秘密情報パターン該当0件、ローカルMarkdownリンク179件を確認した。検証依存の再準備は既存コピーを拒否し、manifest不変であることも確認した。
+
 ## 残る手動検証・リリース条件
 
 - MAでの衣装追加、TTTでのMaterial差し替え、AAO最適化を含む実アバターでの最終出力確認。
@@ -151,3 +173,31 @@ UnityのEditorWindowに実際のカスタムInspectorを描画する回帰テス
 - Android等、Windows Editor以外の対象環境。
 
 これらは自動Edit Modeテストの合格だけでは確認済みとしない。依存バージョン範囲の宣言は、範囲内の全組合せの検証完了を意味しない。
+
+## 2026-09-29：lazyFade 0.2.0への改名と配布準備
+
+公開表示、パッケージID、コンポーネント型・ファイル名、主要設計書名をlazyFadeへ統一した。lilToonはcom.camellian.lazyfade.liltoon／LazyFadeLilToon、NonToonはcom.camellian.lazyfade.nontoon／LazyFadeNonToon。既存のnamespace／assembly名と45個の.meta本文・GUID、保存フィールドを保持した。旧名はMovedFrom、旧Prefab互換性テスト、移行表、過去成果物の記録に限って残す。
+
+改名前のソースはローカルの.verification~/before-lazyFade、旧0.1.0成果物は.verification~/legacy-artifactsに保管した。過去の成果物に新しい名前を付け直して配布することはしていない。ルートのWordモックはlazyFade_lilToon_Spec_Mock.docxへ改名し、公開対象から除外した。
+
+### 実施結果
+
+- Unity 2022.3.22f1／SDK Base・Avatars 3.10.3／NDMF 1.13.1／lilToon 2.3.2／ShaderCore 0.1.11／NonToon 0.1.3。
+- Edit Mode **90件合格、失敗0、スキップ0**。lilToon 62件、NonToon 28件。旧GUIDと旧m_EditorClassIdentifierを持つPrefabの読み込み・値保持を各1件追加。
+- lilToon版：**16,096 bytes**。37ファイル（metaを含む）のUnity出力・再インポート・SHA256一致、再コンパイルを確認。
+- NonToon版：**11,025 bytes**。27ファイル（metaを含む）の同じ検証に合格。
+- Test-VerificationSafety.ps1：19チェック合格。
+- Test-ReleasePipeline.ps1：ZIPルート配置、manifest・依存、ZIPと一覧のSHA256、同一入力再生成、過去版保持、同版改変拒否、公開URL条件、秘密パターン検出、パストラバーサルZIP拒否を隔離コピーで検証。
+- Test-PublicationSafety.ps1：公開ソースと両unitypackage・Release添付文書の226テキストペイロードで検出0。現在版とソースの一致、配布パス、SHA256SUMSも検証。
+- 全PowerShellスクリプトの構文エラー0、Markdownのローカルリンク切れ0。
+
+| ファイル | SHA256 |
+| --- | --- |
+| lazyFade-lilToon-0.2.0.unitypackage | 947c7d621c78d6d150fc7c30968d2d7a4b5f7770b6f250aa1b83716f55a465e6 |
+| lazyFade-NonToon-0.2.0.unitypackage | 2b6a40735867dd1fe08fd551345df6026f991b34117e75692e02ca64a22a9a17 |
+
+### 公開時に残る作業
+
+公開GitHubの所有者／リポジトリと公開用連絡先メールは未設定。Build-VpmRepository.ps1へ指定すると実URL入りの両ZIP、docs/index.json、SHA256SUMSを生成する。公開URLを仮定した成果物は実際のartifactsへ置かず、隔離テスト内だけに生成した。
+
+GitHubへのpush、Releaseの公開、Pages設定、公開JSON・ZIPへのアクセス、VCCでの実インストールは未実施。実アバターのVR／鏡／カメラ／Android・実アップロード・他ツール混在の見た目は以前と同様に手動確認が必要。

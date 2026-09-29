@@ -9,9 +9,9 @@ title: "ライセンス"
 
 # ライセンス
 
-BulkDistanceFadeのコードは以下のMIT Licenseで提供します。依存パッケージにはそれぞれのライセンスが適用されます。
+lazyFadeのコードは以下のMIT Licenseで提供します。依存パッケージにはそれぞれのライセンスが適用されます。
 
-原本はリポジトリ内の `Packages/com.camellian.liltoon-distance-fade/LICENSE` です。
+原本はリポジトリ内の `Packages/com.camellian.lazyfade.liltoon/LICENSE` です。
 
 ```text
 MIT License

@@ -33,6 +33,9 @@ Thumbs.db
 **/[Bb]uild/
 **/[Bb]uilds/
 *.unitypackage
+*.zip
+# Original Word mock-up is a local design input; publish reviewed Markdown instead.
+*.docx
 
 # Local GitHub Pages / Jekyll output and dependencies
 /docs/_site/

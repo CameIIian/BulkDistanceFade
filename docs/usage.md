@@ -11,7 +11,7 @@ description: "コンポーネントの追加と距離フェードの適用手順
 # 使い方
 
 1. Hierarchyで、**VRC Avatar Descriptorと同じアバタールートGameObject**を選択します。
-2. `BulkDistanceFade → Distance Fade Bulk Setter` を1個追加します。
+2. `lazyFade → lazyFade lilToon` を1個追加します。
 3. 「処理を有効化」がONであることを確認します。
 4. 各項目の左端のチェックをONにして、値を入力します。既存値を残したい項目は左端のチェックをOFFにします。
 5. 必要に応じて「除外マテリアル」のリストを開き、処理したくないMaterialを登録します。

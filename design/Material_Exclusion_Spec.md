@@ -2,17 +2,19 @@
 
 文書バージョン: 1.0  
 作成日: 2026-09-09  
-対象: 現行lilToon Distance Fade Bulk Setterへの追加機能
+対象: 現行lilToon lazyFade lilToonへの追加機能
+
+文書の位置付け（2026-09-10）: 除外の一致規則は実装済み。以下のUI配置は初期設計を含み、現在は除外配列そのものを1段の開閉リストとして表示する。現在の画面と追加Shaderへ引き継ぐ要件は[lilToon実装参照](lilToon_Implementation_Reference.md)を参照する。
 
 ## 1. 目的・適用範囲
 
 利用者が指定したMaterialを距離フェードの一括適用から除外する。アバタールートの既存コンポーネント1個で管理し、除外Materialを参照するすべての対象Renderer／Slotへ適用する。非アクティブGameObject、無効Renderer、MeshRenderer／SkinnedMeshRendererも同じ規則で扱う。
 
-本書は既存仕様の「Material除外リストは対象外」を更新する追加仕様である。マルチShader拡張仕様の手動Material除外も本書へ切り出す。今回の実装対象は現行lilToon処理であり、Shaderアダプター化は前提としない。
+本書は既存仕様の「Material除外リストは対象外」を更新する追加仕様である。追加Shaderの設計でもこの除外規則を引き継ぐ。実装対象は現行lilToon処理であり、Shaderアダプター化は前提としない。
 
 ## 2. 設定データ・Inspector
 
-- `DistanceFadeBulkSetter`に公開シリアライズフィールド`Material[] excludedMaterials`を追加する。初期値は空配列。既存フィールド、クラス名、assembly、スクリプトGUIDを保持する。
+- `LazyFadeLilToon`に公開シリアライズフィールド`Material[] excludedMaterials`を追加する。初期値は空配列。既存フィールド、クラス名、assembly、スクリプトGUIDを保持する。
 - 空配列、配列自体のnull、未設定／削除済み参照は除外指定なしとして扱う。重複指定は1件として判定する。未使用Materialの指定はエラーにしない。
 - InspectorのStrict設定の下に「除外マテリアル」の配列編集UIを表示する。Unity標準の`SerializedProperty`を使用し、追加・削除・参照変更、Undo／Redo、Prefab overrideをサポートする。
 - 全スロットへ適用すること、未設定要素を無視することを説明する。編集時集計に除外Material数と除外Slot数を追加する。設定編集とUndo／Redoで既存の集計更新案内を表示する。

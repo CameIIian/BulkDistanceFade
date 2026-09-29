@@ -61,8 +61,8 @@ foreach ($property in $referenceManifest.dependencies.PSObject.Properties) {
         $manifest[$property.Name] = '1.0.0'
     }
 }
-$manifest['com.camellian.liltoon-distance-fade'] = 'file:' + (Join-Path $workspace 'Packages/com.camellian.liltoon-distance-fade').Replace('\', '/')
-@{ dependencies = $manifest; testables = @('com.camellian.liltoon-distance-fade') } | ConvertTo-Json -Depth 8 |
+$manifest['com.camellian.lazyfade.liltoon'] = 'file:' + (Join-Path $workspace 'Packages/com.camellian.lazyfade.liltoon').Replace('\', '/')
+@{ dependencies = $manifest; testables = @('com.camellian.lazyfade.liltoon') } | ConvertTo-Json -Depth 8 |
     Set-Content -LiteralPath (Join-Path $packageOutput 'manifest.json') -Encoding utf8
 Copy-Item -LiteralPath (Join-Path $ReferenceProject 'ProjectSettings/ProjectVersion.txt') -Destination (Join-Path $verification 'ProjectSettings/ProjectVersion.txt')
 Write-Output "Verification project: $verification"

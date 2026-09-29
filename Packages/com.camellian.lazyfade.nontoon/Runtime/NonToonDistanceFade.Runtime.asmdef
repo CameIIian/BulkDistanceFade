@@ -1,0 +1,5 @@
+{
+  "name": "Camellian.NonToonDistanceFade.Runtime",
+  "references": ["VRC.SDKBase"],
+  "autoReferenced": true
+}
