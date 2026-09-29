@@ -4,8 +4,6 @@ title: lazyFade
 description: VRChatアバターの距離フェードをまとめて設定するUnity Editor拡張
 ---
 
-VRChatアバターの距離フェードを、NDMFビルド時の成果物にだけ設定。
-
 ## 導入
 
 Unity 2022.3のアバタープロジェクトで、使用するShaderに合った版を追加すること。
