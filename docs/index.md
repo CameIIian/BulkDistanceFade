@@ -4,6 +4,8 @@ title: lazyFade
 description: VRChatアバターの距離フェードをまとめて設定するUnity Editor拡張
 ---
 
+<p class="action-row"><a class="button" href="vcc://vpm/addRepo?url=https%3A%2F%2Fcameiiian.github.io%2FlazyFade%2Findex.json">VCC / ALCOM等にリポジトリを追加</a></p>
+
 ## 導入
 
 Unity 2022.3のアバタープロジェクトで、使用するShaderに合った版を追加すること。
@@ -25,8 +27,6 @@ Unity 2022.3のアバタープロジェクトで、使用するShaderに合っ�
 
 3. **Manage Project** から **lazyFade - lilToon** または **lazyFade - NonToon** を追加し、Unityを開く。
 
-<p class="action-row"><a class="button" href="vcc://vpm/addRepo?url=https%3A%2F%2Fcameiiian.github.io%2FlazyFade%2Findex.json">VCC / ALCOM等にリポジトリを追加</a></p>
-
 ## 使い方
 
 1. Hierarchyでアバターのルートを選び、**Add Component → lazyFade → lazyFade lilToon / lazyFade NonToon** を追加。配置先はVRC Avatar Descriptorと同じGameObject。1個ずつ併用可能。
@@ -44,4 +44,6 @@ Unity 2022.3のアバタープロジェクトで、使用するShaderに合っ�
 
 解決しない場合は、使用バージョンとConsoleのエラーを添えて[Issue](https://github.com/CameIIian/lazyFade/issues)まで。
 
-lilToon, NonToon公式の拡張ではありません。設定の詳細や検証範囲、開発手順は[技術文書の目次](https://github.com/CameIIian/lazyFade/blob/main/docs/README.md)から確認できます。
+lilToon, NonToon公式の拡張ではありません。
+
+設定の詳細や検証範囲、開発手順は[技術文書の目次](https://github.com/CameIIian/lazyFade/blob/main/docs/README.md)から確認できます。
