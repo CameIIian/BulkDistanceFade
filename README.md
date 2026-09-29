@@ -1,6 +1,6 @@
-# lazyFade
+![](./docs/img/logo.png)
 
-VRChatアバターの距離フェードを、NDMFビルド時にまとめて設定するUnity Editor拡張。
+VRChatアバターの距離フェードを、NDMFビルド時にまとめて設定するUnity Editor拡張。\
 元マテリアルは変更しない。
 
 ## 依存関係
@@ -15,10 +15,13 @@ VRChatアバターの距離フェードを、NDMFビルド時にまとめて設�
 ```
 https://cameiiian.github.io/lazyFade/index.json
 ```
-2. **VRC Avatar Descriptorと同じGameObject** に、Add Componentの **lazyFade → lazyFade lilToon / lazyFade NonToon** を追加します。
+2. アバターのルート(VRC Avatar Descriptorと同じ位置)に
+```
+Add Component → lazyFade → lazyFade XXX
+```
 
 ## 免責
-liltoon, shadercore公式の機能で無いため、アップデートによって問題が発生する場合があります。
+liltoon, shadercore公式の機能で無いため、アップデートによって問題が発生する場合があります。\
 問題があればissueページ及び各種連絡先までどうぞ。
 
 本ツールは[MITライセンス](LICENSE)です。
