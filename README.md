@@ -1,25 +1,28 @@
 # lazyFade
 
-VRChatアバターの距離フェードを、NDMFビルド時にまとめて設定するUnity Editor拡張です。元マテリアルは変更しません。
+VRChatアバターの距離フェードを、NDMFビルド時にまとめて設定するUnity Editor拡張。
+元マテリアルは変更しない。
 
-| 版 | 必要な環境 | 配布ファイル（v0.2.0） |
-| --- | --- | --- |
-| lilToon | Unity 2022.3、SDK Avatars、NDMF、lilToon 2.3.2以上・3未満 | `lazyFade-lilToon-0.2.0.unitypackage` |
-| NonToon | Unity 2022.3、SDK Avatars、NDMF、ShaderCore 0.1.11、NonToon 0.1.3 | `lazyFade-NonToon-0.2.0.unitypackage` |
+## 依存関係
+- Unity 2022.3f22
+- SDK Avatars
+- NDMF
+- liltoon または shadercore + nontoon
 
 ## 導入・使い方
 
-1. 必要な依存パッケージを導入し、使う版のunitypackageを **Assets → Import Package → Custom Package** からインポートします。VPMで導入する場合は[導入ガイド](docs/installation.md)を参照してください。
+1. 必要な依存パッケージを導入、VPMに以下を登録し追加
+```
+https://cameiiian.github.io/lazyFade/index.json
+```
 2. **VRC Avatar Descriptorと同じGameObject** に、Add Componentの **lazyFade → lazyFade lilToon / lazyFade NonToon** を追加します。
-3. 上書きする項目のチェックをONにし、値を設定します。**NonToon版の適用チェックは初期状態ですべてOFF**です。
-4. 「再集計」で対象を確認し、VRChat SDKからビルドします。編集画面のマテリアルは変わりません。
 
-両版は各1個ずつ併設できます。同じ版のunitypackageとVPM版は重複導入しないでください。旧版からの更新は[移行手順](docs/migration.md)を確認してください。
+## 免責
+liltoon, shadercore公式の機能で無いため、アップデートによって問題が発生する場合があります。
+問題があればissueページ及び各種連絡先までどうぞ。
 
-## 詳細
+本ツールは[MITライセンス](LICENSE)です。
 
-- [設定項目](docs/settings.md)・[NonToonガイド](docs/nontoon.md)・[トラブルシューティング](docs/troubleshooting.md)
-- [開発・テスト](docs/development.md)・[技術仕様](design/README.md)
-- [VPM公開手順](docs/publishing.md)・[Release作成](release/README.md)・[安全チェック](docs/security.md)
-
-lilToon／NonToon公式の機能ではありません。Poiyomiは未対応です。ライセンスは[MIT](LICENSE)。
+## 予定
+- poiToon / poiPro 同機能
+- 保守
