@@ -2,11 +2,7 @@ title: lazyFade
 description: VRChatアバターのlilToon／NonToon距離フェードを非破壊で一括設定するUnity Editor拡張
 lang: ja
 timezone: Asia/Tokyo
-theme:
-  palette:
-    scheme: slate
-    primary: deep purple
-    accent: purple
+theme: jekyll-theme-cayman
 markdown: kramdown
 show_downloads: false
 exclude:
